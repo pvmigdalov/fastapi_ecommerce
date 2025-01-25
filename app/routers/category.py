@@ -1,6 +1,6 @@
 from fastapi import APIRouter
 
-router = APIRouter(prefix="/categories", tags=["category"])
+router = APIRouter(prefix="/categories", tags=["Categories"])
 
 @router.get("/")
 async def get_all_categories():
@@ -14,6 +14,6 @@ async def create_actegory():
 async def update_category():
     pass
 
-@router.delete
+@router.delete("/")
 async def delete_category():
     pass

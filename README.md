@@ -1,1 +1,1 @@
-# fastapi_ecommerce
+# Stepik https://stepik.org/course/180000/syllabus

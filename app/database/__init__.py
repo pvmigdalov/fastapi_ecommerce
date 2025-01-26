@@ -1,1 +1,1 @@
-from db import Base
+from app.database.db import Base

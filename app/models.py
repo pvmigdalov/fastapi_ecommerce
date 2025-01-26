@@ -7,6 +7,8 @@ from app.database import Base
 class Category(Base):
     __tablename__ = "categories"
 
+    parent_id = Column(Integer, ForeignKey('categories.id'), nullable=True)
+    
     products = relationship("Product", back_populates="category")
 
 class Product(Base):

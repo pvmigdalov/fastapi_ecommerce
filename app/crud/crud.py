@@ -2,38 +2,41 @@ from sqlalchemy import insert, select, update
 from sqlalchemy.orm import Session
 from slugify import slugify
 
-from app.models import Category, Product
+from app.database import Base
 
 
-class CRUDManager:
-    def __init__(self, model: Category | Product):
-        self.model = model
+class CrudManager:
+    Model: type[Base]
 
-    async def select_all_active_categories(session: Session):
-        query = select(Category) \
-            .where(Category.is_active == True)
+    @classmethod    
+    async def select_all_active(cls, session: Session):
+        query = select(cls.Model) \
+            .where(cls.Model.is_active == True)
         return session.scalars(query).all()
-
-    async def select_category_by_id(session: Session, category_id: int):
+    
+    @classmethod
+    async def select_by_id(cls, session: Session, _id: int):
         return session.scalar(
-            select(Category).where(Category.id == category_id)
+            select(cls.Model).where(cls.Model.id == _id)
         )
-
-    async def insert_category(session: Session, **values: dict):
-        query = insert(Category).values(
+    
+    @classmethod
+    async def insert(cls, session: Session, **values: dict):
+        query = insert(cls.Model).values(
             slug = slugify(values["name"]),
             **values
         )
         session.execute(query)
         session.commit()
-
-    async def update_category(session: Session, category_id: int, **values: dict):
+    
+    @classmethod
+    async def update(cls, session: Session, _id: int, **values: dict):
         update_values = dict(**values)
         if "name" in values:
             update_values["slug"] = slugify(values["name"])
 
-        query = update(Category) \
-            .where(Category.id == category_id) \
+        query = update(cls.Model) \
+            .where(cls.Model.id == _id) \
             .values(**update_values)
         session.execute(query)
         session.commit()

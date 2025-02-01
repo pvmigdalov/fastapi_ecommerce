@@ -1,1 +1,2 @@
-from app.crud import categories_crud, products_crud
+from app.crud.categories_crud import CategoryCrudManager
+from app.crud.products_crud import ProductCrudManager

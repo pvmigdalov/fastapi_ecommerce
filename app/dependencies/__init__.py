@@ -1,0 +1,1 @@
+from app.dependencies.category_dependencies import check_category_exists

@@ -1,1 +1,1 @@
-from app.database.db import Base
+from app.database.db import Base, get_db_session

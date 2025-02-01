@@ -3,7 +3,14 @@ from sqlalchemy.orm import sessionmaker, DeclarativeBase
 
 
 engine = create_engine("sqlite:///ecommerce.db", echo=True)
-session = sessionmaker(bind=engine)
+Session = sessionmaker(bind=engine)
+
+async def get_db_session():
+    session = Session()
+    try:
+        yield session
+    finally:
+        session.close()
 
 class Base(DeclarativeBase):
     id = Column(Integer, primary_key=True, index=True)

@@ -2,4 +2,4 @@ from app.crud.crud import CrudManager
 from app.models import Category
 
 class CategoryCrudManager(CrudManager):
-    Model: type[Category] = Category
+    Model = Category

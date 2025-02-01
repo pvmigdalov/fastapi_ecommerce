@@ -5,7 +5,7 @@ from app.crud.crud import CrudManager
 from app.models import Category, Product
 
 class ProductCrudManager(CrudManager):
-    Model: type[Product] = Product
+    Model = Product
 
     @classmethod    
     async def select_all_active(cls, session: Session):

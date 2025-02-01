@@ -11,13 +11,13 @@ router = APIRouter(prefix="/products", tags=["Products"])
 session_dependency = Annotated[Session, Depends(get_db_session)]
 
 @router.get("/")
-async def get_all_products(session: session_dependency):
+async def get_all_products(session: session_dependency): # type: ignore
     return await ProductCrudManager.select_all_active(session)
 
 
 @router.post("/", status_code=status.HTTP_201_CREATED)
 async def create_product(
-    session: session_dependency,
+    session: session_dependency, # type: ignore
     product: CreateProduct
 ):
     await ProductCrudManager.insert(session, product.model_dump())
@@ -27,22 +27,22 @@ async def create_product(
 
 @router.get("/{category_slug}")
 async def product_by_category(
-    session: session_dependency,
+    session: session_dependency, # type: ignore
     category_slug: str
 ):
     return await ProductCrudManager.select_products_by_category(session, category_slug)
 
 
 @router.get("/detail/{product_slug}")
-async def product_detail(session: session_dependency, product_slug: str):
+async def product_detail(session: session_dependency, product_slug: str): # type: ignore
     pass
 
 
 @router.put("/{product_slug}")
-async def update_product(session: session_dependency, product_slug: str):
+async def update_product(session: session_dependency, product_slug: str): # type: ignore
     pass
 
 
 @router.delete("/")
-async def delete_product(session: session_dependency, product_id: int):
+async def delete_product(session: session_dependency, product_id: int): # type: ignore
     pass

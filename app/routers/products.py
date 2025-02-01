@@ -1,6 +1,12 @@
-from fastapi import APIRouter
+from typing import Annotated
+
+from fastapi import APIRouter, Depends
+
+from app.database import Session, get_db_session
 
 router = APIRouter(prefix="/products", tags=["Products"])
+
+session_dependency = Annotated[Session, Depends(get_db_session)]
 
 @router.get("/")
 async def all_products():

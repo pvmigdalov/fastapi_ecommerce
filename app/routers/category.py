@@ -3,7 +3,8 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, status
 from sqlalchemy.orm import Session
 
-from app.database import get_db_session, categories_crud as crud
+from app.database import get_db_session
+from app.crud import categories_crud as crud
 from app.schemas import CreateCategory
 from app.dependencies import check_category_exists
 

@@ -3,8 +3,8 @@ from typing import Annotated
 from fastapi import Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
-from app.database import categories_crud
 from app.database import get_db_session
+from app.crud import categories_crud
 
 
 async def check_category_exists(

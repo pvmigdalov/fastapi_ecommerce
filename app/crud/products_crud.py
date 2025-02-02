@@ -1,5 +1,5 @@
-from sqlalchemy import select
-from sqlalchemy.orm import Session, aliased
+from sqlalchemy import select, union
+from sqlalchemy.orm import Session
 
 from app.crud.crud import CrudManager
 from app.models import Category, Product
@@ -21,9 +21,15 @@ class ProductCrudManager(CrudManager):
     ):
         category_by_slug = select(Category.id) \
             .where(Category.slug == category_slug) \
-            .subquery()
+            .cte()
+        
+        category_hierarchy = union(
+            select(category_by_slug.c.id),
+            select(Category.id) \
+                .join(category_by_slug, Category.parent_id == category_by_slug.c.id)
+        ).cte()
             
         query = select(cls.Model) \
-            .join(category_by_slug, cls.Model.category_id == category_by_slug.columns.id)
+            .join(category_hierarchy, cls.Model.category_id == category_hierarchy.c.id)
 
         return session.scalars(query).all()

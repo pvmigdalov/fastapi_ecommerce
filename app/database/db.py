@@ -13,11 +13,8 @@ engine = create_async_engine(DATABASE_URL, echo=True)
 Session = async_sessionmaker(engine, expire_on_commit=False, class_=AsyncSession)
 
 async def get_db_session():
-    session = Session()
-    try:
+    async with Session() as session:
         yield session
-    finally:
-        session.close()
 
 class Base(DeclarativeBase):
     id = Column(Integer, primary_key=True, index=True)

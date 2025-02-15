@@ -11,7 +11,8 @@ class ProductCrudManager(CrudManager):
     async def select_all_active(cls, session: Session):
         query = select(cls.Model) \
             .where(cls.Model.is_active == True, cls.Model.stock > 0)
-        return session.scalars(query).all()
+        result = await session.scalars(query)
+        return result.all()
     
     @classmethod
     async def select_products_by_category(
@@ -32,4 +33,5 @@ class ProductCrudManager(CrudManager):
         query = select(cls.Model) \
             .join(category_hierarchy, cls.Model.category_id == category_hierarchy.c.id)
 
-        return session.scalars(query).all()
+        result = await session.scalars(query)
+        return result.all()

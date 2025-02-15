@@ -12,11 +12,12 @@ class CrudManager:
     async def select_all_active(cls, session: AsyncSession):
         query = select(cls.Model) \
             .where(cls.Model.is_active == True)
-        return session.scalars(query).all()
+        result = await session.scalars(query)
+        return result.all()
     
     @classmethod
     async def select_by_id(cls, session: AsyncSession, _id: int):
-        return session.scalar(
+        return await session.scalar(
             select(cls.Model).where(cls.Model.id == _id)
         )
     
@@ -26,8 +27,8 @@ class CrudManager:
             slug = slugify(values["name"]),
             **values
         )
-        session.execute(query)
-        session.commit()
+        await session.execute(query)
+        await session.commit()
     
     @classmethod
     async def update(cls, session: AsyncSession, _id: int, **values: dict):
@@ -38,5 +39,5 @@ class CrudManager:
         query = update(cls.Model) \
             .where(cls.Model.id == _id) \
             .values(**update_values)
-        session.execute(query)
-        session.commit()
+        await session.execute(query)
+        await session.commit()

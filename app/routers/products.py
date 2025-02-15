@@ -21,7 +21,7 @@ async def create_product(
     session: session_dependency,
     product: CreateProduct
 ):
-    await ProductCrudManager.insert(session, product.model_dump())
+    await ProductCrudManager.insert(session, **product.model_dump())
 
     return {"transaction": "Successful"}
 

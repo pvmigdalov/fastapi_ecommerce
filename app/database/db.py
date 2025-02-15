@@ -1,9 +1,16 @@
-from sqlalchemy import Boolean, Column, Integer, String, create_engine
-from sqlalchemy.orm import sessionmaker, DeclarativeBase
+import os
+
+from dotenv import load_dotenv
+from sqlalchemy import Boolean, Column, Integer, String
+from sqlalchemy.orm import DeclarativeBase
+from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker, AsyncSession
+
+load_dotenv()
+DATABASE_URL = os.getenv("DATABASE_URL")
 
 
-engine = create_engine("sqlite:///ecommerce.db", echo=True)
-Session = sessionmaker(bind=engine)
+engine = create_async_engine(DATABASE_URL, echo=True)
+Session = async_sessionmaker(engine, expire_on_commit=False, class_=AsyncSession)
 
 async def get_db_session():
     session = Session()

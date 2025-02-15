@@ -1,7 +1,7 @@
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, status
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.database import get_db_session
 from app.crud import CategoryCrudManager
@@ -11,7 +11,7 @@ from app.dependencies import check_category_exists
 
 router = APIRouter(prefix="/categories", tags=["Categories"])
 
-session_dependency = Annotated[Session, Depends(get_db_session)]
+session_dependency = Annotated[AsyncSession, Depends(get_db_session)]
 
 @router.get("/")
 async def get_all_categories(session: session_dependency):

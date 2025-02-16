@@ -28,15 +28,18 @@ async def create_category(
 @router.put("/", dependencies=[Depends(check_category_exists)])
 async def update_category(
     session: session_dependency,
-    category_id: int, 
+    id: int, 
     category_update: CreateCategory
 ):
-    await CategoryCrudManager.update(session, category_id, **category_update.model_dump())
+    await CategoryCrudManager.update(session, id, **category_update.model_dump())
     return {
         "transaction": "Category update is successful"
     }
 
 @router.delete("/", dependencies=[Depends(check_category_exists)])
-async def delete_category(session: session_dependency, category_id: int):
-    await CategoryCrudManager.update(session, category_id, is_active=False)
+async def delete_category(
+    session: session_dependency, 
+    id: int
+):
+    await CategoryCrudManager.update(session, id, is_active=False)
     return {"transaction": "Category delete is successful"}

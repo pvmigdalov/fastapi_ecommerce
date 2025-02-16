@@ -36,17 +36,20 @@ async def product_by_category(
 
 
 @router.get("/detail/{product_slug}")
-async def product_detail(session: session_dependency, product_slug: str):
+async def product_detail(
+    session: session_dependency, 
+    product_slug: str
+):
     return await ProductCrudManager.select_by_condition(session, slug=product_slug)
 
 
 @router.put("/{product_id}", dependencies=[Depends(check_product_exists)])
 async def update_product(
     session: session_dependency, 
-    product_id: int,
+    id: int,
     product_update: CreateProduct
 ):
-    await ProductCrudManager.update(session, product_id, **product_update.model_dump())
+    await ProductCrudManager.update(session, id, **product_update.model_dump())
 
     return {
         "transaction": "Product update is successful"
@@ -54,6 +57,9 @@ async def update_product(
 
 
 @router.delete("/", dependencies=[Depends(check_product_exists)])
-async def delete_product(session: session_dependency, product_id: int):
-    await ProductCrudManager.update(session, product_id, is_active=False)
+async def delete_product(
+    session: session_dependency, 
+    id: int
+):
+    await ProductCrudManager.update(session, id, is_active=False)
     return {"transaction": "Product delete is successful"}

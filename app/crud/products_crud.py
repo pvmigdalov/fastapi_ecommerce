@@ -5,6 +5,7 @@ from app.crud.crud import CrudManager
 from app.models import Category, Product
 
 class ProductCrudManager(CrudManager):
+    model_name = "products"
     Model = Product
 
     @classmethod    

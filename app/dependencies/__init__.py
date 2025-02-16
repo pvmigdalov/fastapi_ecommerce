@@ -1,1 +1,1 @@
-from app.dependencies.category_dependencies import check_category_exists
+from app.dependencies.dependencies import check_category_exists, check_product_exists

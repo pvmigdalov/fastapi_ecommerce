@@ -37,4 +37,4 @@ class User(Base):
     is_supplier = Column(Boolean)
     is_customer =Column(Boolean)
 
-    products = relationship("User", back_populates="category")
+    products = relationship("Product", back_populates="user")

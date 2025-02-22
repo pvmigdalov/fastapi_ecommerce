@@ -1,5 +1,5 @@
 from sqlalchemy import select, union
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.crud.crud import CrudManager
 from app.models import Category, Product
@@ -9,7 +9,7 @@ class ProductCrudManager(CrudManager):
     Model = Product
 
     @classmethod    
-    async def select_all_active(cls, session: Session):
+    async def select_all_active(cls, session: AsyncSession):
         query = select(cls.Model) \
             .where(cls.Model.is_active == True, cls.Model.stock > 0)
         result = await session.scalars(query)
@@ -18,7 +18,7 @@ class ProductCrudManager(CrudManager):
     @classmethod
     async def select_products_by_category(
         cls, 
-        session: Session, 
+        session: AsyncSession, 
         category_slug: str
     ):
         category_by_slug = select(Category.id) \

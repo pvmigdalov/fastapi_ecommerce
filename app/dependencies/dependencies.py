@@ -1,5 +1,3 @@
-from asyncio import iscoroutinefunction
-from functools import partial
 from typing import Annotated
 
 from fastapi import Depends, HTTPException, status

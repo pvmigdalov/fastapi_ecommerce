@@ -18,7 +18,8 @@ session_dependency = Annotated[AsyncSession, Depends(get_db_session)]
 async def create_user(session: session_dependency, user: CreateUser):
     user_data = user.model_dump()
     password = user_data.pop("password")
-    user_data["hashed_password"] = bcrypt_context.hash(create_user.password)
+    user_data["hashed_password"] = bcrypt_context.hash(password)
 
     await UserCrudManager.insert(session, **user_data)
+    return {"transaction": "Successful"}
 

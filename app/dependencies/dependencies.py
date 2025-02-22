@@ -7,15 +7,17 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.database import get_db_session
 from app.crud import CrudManager, CategoryCrudManager, ProductCrudManager, UserCrudManager
+from app.schemas import CreateUser
 
 
+session_dependency = Annotated[AsyncSession, Depends(get_db_session)]
 class _CheckerExistsByID:
     def __init__(self, crud_manager: CrudManager):
         self.crud_manager = crud_manager
 
     async def __call__(
         self,
-        session: Annotated[AsyncSession, Depends(get_db_session)],
+        session: session_dependency,
         id: int
     ):
         value = await self.crud_manager.select_by_id(session, id)
@@ -26,18 +28,10 @@ check_category_exists = _CheckerExistsByID(CategoryCrudManager)
 check_product_exists = _CheckerExistsByID(ProductCrudManager)
 check_user_exists = _CheckerExistsByID(UserCrudManager)
 
-# async def check_category_exists(
-#     session: Annotated[AsyncSession, Depends(get_db_session)], 
-#     category_id: int
-# ):
-#     category = await CategoryCrudManager.select_by_id(session, category_id)
-#     if category is None:
-#         raise HTTPException(status.HTTP_404_NOT_FOUND, "There is no category found")
-    
-# async def check_product_exists(
-#     session: Annotated[AsyncSession, Depends(get_db_session)], 
-#     product_id: int
-# ):
-#     product = await ProductCrudManager.select_by_id(session, product_id)
-#     if product is None:
-#         raise HTTPException(status.HTTP_404_NOT_FOUND, "There is no product found")
+async def check_user_by_username_or_email(
+    session: session_dependency,
+    user: CreateUser
+):
+    checked_user = await UserCrudManager.select_by_username_or_email(session, user)
+    if not checked_user is None:
+        raise HTTPException(status.HTTP_409_CONFLICT, "User with this username or email already exists")

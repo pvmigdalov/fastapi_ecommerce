@@ -3,6 +3,7 @@ import uvicorn
 
 from app.routers import category_router
 from app.routers import products_router
+from app.routers import auth_router
 
 app = FastAPI()
 
@@ -12,6 +13,7 @@ async def welcome():
 
 app.include_router(category_router)
 app.include_router(products_router)
+app.include_router(auth_router)
 
 if __name__ == "__main__":
     uvicorn.run("app.main:app", reload=True)

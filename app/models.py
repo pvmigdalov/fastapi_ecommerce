@@ -33,8 +33,8 @@ class User(Base):
     username = Column(String, unique=True)
     email = Column(String, unique=True)
     hashed_password = Column(String)
-    is_admin = Column(Boolean)
-    is_supplier = Column(Boolean)
-    is_customer =Column(Boolean)
+    is_admin = Column(Boolean, default=False)
+    is_supplier = Column(Boolean, default=False)
+    is_customer =Column(Boolean, default=True)
 
     products = relationship("Product", back_populates="user")

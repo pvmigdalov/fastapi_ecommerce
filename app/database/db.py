@@ -19,5 +19,4 @@ async def get_db_session():
 class Base(DeclarativeBase):
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String)
-    slug = Column(String, unique=True, index=True)
     is_active = Column(Boolean, default=True)

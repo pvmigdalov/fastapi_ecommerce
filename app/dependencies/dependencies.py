@@ -6,7 +6,7 @@ from fastapi import Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.database import get_db_session
-from app.crud import CrudManager, CategoryCrudManager, ProductCrudManager
+from app.crud import CrudManager, CategoryCrudManager, ProductCrudManager, UserCrudManager
 
 
 class _CheckerExists:
@@ -24,6 +24,7 @@ class _CheckerExists:
 
 check_category_exists = _CheckerExists(CategoryCrudManager)
 check_product_exists = _CheckerExists(ProductCrudManager)
+check_user_exists = _CheckerExists(UserCrudManager)
 
 # async def check_category_exists(
 #     session: Annotated[AsyncSession, Depends(get_db_session)], 

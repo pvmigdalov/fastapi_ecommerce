@@ -9,7 +9,7 @@ from app.database import get_db_session
 from app.crud import CrudManager, CategoryCrudManager, ProductCrudManager, UserCrudManager
 
 
-class _CheckerExists:
+class _CheckerExistsByID:
     def __init__(self, crud_manager: CrudManager):
         self.crud_manager = crud_manager
 
@@ -22,9 +22,9 @@ class _CheckerExists:
         if value is None:
             raise HTTPException(status.HTTP_404_NOT_FOUND, f"There are no {self.crud_manager.model_name} found")
 
-check_category_exists = _CheckerExists(CategoryCrudManager)
-check_product_exists = _CheckerExists(ProductCrudManager)
-check_user_exists = _CheckerExists(UserCrudManager)
+check_category_exists = _CheckerExistsByID(CategoryCrudManager)
+check_product_exists = _CheckerExistsByID(ProductCrudManager)
+check_user_exists = _CheckerExistsByID(UserCrudManager)
 
 # async def check_category_exists(
 #     session: Annotated[AsyncSession, Depends(get_db_session)], 

@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, EmailStr
 
 class CreateProduct(BaseModel):
     name: str
@@ -16,5 +16,5 @@ class CreateCategory(BaseModel):
 class CreateUser(BaseModel):
     name: str
     username: str
-    email: str
+    email: EmailStr
     password: str

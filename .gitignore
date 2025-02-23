@@ -3,4 +3,5 @@
 .vscode
 __pycache__
 ecommerce.db*
-.env
+db.env
+auth.env

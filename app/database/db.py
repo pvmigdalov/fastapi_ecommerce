@@ -5,7 +5,7 @@ from sqlalchemy import Boolean, Column, Integer, String
 from sqlalchemy.orm import DeclarativeBase
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker, AsyncSession
 
-load_dotenv()
+load_dotenv("app/settings/db.env")
 DATABASE_URL = os.getenv("DATABASE_URL")
 
 

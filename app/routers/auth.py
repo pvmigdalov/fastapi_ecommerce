@@ -7,8 +7,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.database import get_db_session
 from app.crud import UserCrudManager
 from app.schemas import CreateUser
-from app.dependencies import AuthHelper, check_user_by_username_or_email
-from app.models import User
+from app.dependencies import check_user_by_username_or_email
+from app.utils import AuthHelper
 
 
 router = APIRouter(prefix="/auth", tags=["Auth"])

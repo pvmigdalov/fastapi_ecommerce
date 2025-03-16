@@ -1,3 +1,4 @@
+from datetime import timedelta
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, status
@@ -32,11 +33,12 @@ async def get_token(
     form_data: Annotated[OAuth2PasswordRequestForm, Depends()]
 ):
     user = await AuthHelper.authenticate_user(session, form_data.username, form_data.password)
+    token = AuthHelper.create_access_token(user, timedelta(days=1))
     return {
-        "access_token": user.username,
+        "access_token": token,
         "token_type": "bearer"
     }
 
 @router.get("/me")
-async def me(user: Annotated[str, Depends(oauth2_scheme)]):
-    return user
+async def get_me(user_jwt: Annotated[str, Depends(oauth2_scheme)]):
+    return AuthHelper.decode_token(user_jwt)

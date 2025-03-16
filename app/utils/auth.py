@@ -47,7 +47,7 @@ class AuthHelper:
         return user
     
     @classmethod
-    async def create_access_token(
+    def create_access_token(
         cls,
         user: User,
         expires_delta: timedelta
@@ -63,3 +63,8 @@ class AuthHelper:
 
         payload["exp"] = int(payload["exp"].timestamp())
         return jwt.encode(payload, SECRET_KEY, algorithm=ALGORITHM)
+    
+    @classmethod
+    def decode_token(cls, jwt_token: str):
+        payload = jwt.decode(jwt_token, key=SECRET_KEY, algorithms=[ALGORITHM])
+        return payload

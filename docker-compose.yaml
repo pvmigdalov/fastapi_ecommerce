@@ -1,0 +1,53 @@
+services:
+  app:
+    build:
+      dockerfile: ./Dockerfile
+      context: ./
+    environment:
+      DATABASE_URL: postgresql+asyncpg://ecommerce:ecommerce@pg:5432/fastapi_ecommerce
+    ports:
+      - "8000:8000"
+    depends_on:
+      pg:
+        condition: service_healthy
+    develop:
+      watch:
+        - action: sync+restart
+          path: ./app
+          target: ./app
+        - action: rebuild
+          path: ./requirenents.txt
+        # - action: sync
+        #   path: ./migrations
+        #   target: ./migrations
+  pg:
+    image: postgres:16.4
+    environment:
+      POSTGRES_DB: fastapi_ecommerce
+      POSTGRES_USER: ecommerce
+      POSTGRES_PASSWORD: ecommerce
+      PGDATA: /var/lib/postgresql/data
+    ports:
+     - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready" ]
+      interval: 5s
+      timeout: 3s
+      retries: 3
+
+  pgadmin:
+    image: dpage/pgadmin4
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@admin.org
+      PGADMIN_DEFAULT_PASSWORD: admin
+      PGADMIN_CONFIG_SERVER_MODE: 'False'
+    ports:
+      - "5050:80"
+    depends_on:
+      pg:
+        condition: service_healthy
+
+volumes:
+  pgdata:

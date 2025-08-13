@@ -1,8 +1,8 @@
-"""Default values for is_admin, is_supplier and is_customer in User model
+"""init migration
 
-Revision ID: 177b5c19cacb
-Revises: 380c90c053de
-Create Date: 2025-02-22 14:55:04.980470
+Revision ID: d8e20407cfd4
+Revises: 
+Create Date: 2025-08-13 21:38:31.768485
 
 """
 from typing import Sequence, Union
@@ -12,8 +12,8 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision: str = '177b5c19cacb'
-down_revision: Union[str, None] = '380c90c053de'
+revision: str = 'd8e20407cfd4'
+down_revision: Union[str, None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
 

@@ -7,9 +7,9 @@ from app.database import Base
 
 
 class UserRole(enum.Enum):
-    ADMIN = "admin"
-    SUPPLIER = "supplier"
-    CUSTOMER = "customer"
+    admin = "admin"
+    supplier = "supplier"
+    customer = "customer"
 
 class Category(Base):
     __tablename__ = "categories"
@@ -43,6 +43,11 @@ class User(Base):
     is_admin = Column(Boolean, default=False)
     is_supplier = Column(Boolean, default=False)
     is_customer = Column(Boolean, default=True)
-    user_role = Column(Enum(UserRole), nullable=False)
+    user_role = Column(
+        Enum(UserRole), 
+        default=UserRole.customer, 
+        server_default=UserRole.customer.value, 
+        nullable=False
+    )
 
     products = relationship("Product", back_populates="user")

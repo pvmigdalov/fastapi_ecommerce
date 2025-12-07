@@ -1,4 +1,4 @@
-FROM python:3.12.11-bookworm
+FROM python:3.12.12-bookworm
 
 ENV PYTHONUNBUFFERED=1
 ENV PYTHONDONTWRITEBYTECODE=1
@@ -16,8 +16,8 @@ RUN pip install -r requirements.txt
 
 COPY ./ ./
 
-RUN chmod +x ./entrypoint.sh
+# RUN chmod +x ./entrypoint.sh
 
-ENTRYPOINT ["./entrypoint.sh"]
+# ENTRYPOINT ["./entrypoint.sh"]
 
 CMD ["python3", "app/main.py"]

@@ -21,7 +21,7 @@ services:
         #   path: ./migrations
         #   target: ./migrations
   pg:
-    image: postgres:16.4
+    image: postgres:17.7-bookworm
     environment:
       POSTGRES_DB: fastapi_ecommerce
       POSTGRES_USER: ecommerce
@@ -32,7 +32,7 @@ services:
     volumes:
       - pgdata:/var/lib/postgresql/data
     healthcheck:
-      test: [ "CMD-SHELL", "pg_isready" ]
+      test: [ "CMD-SHELL", "pg_isready -U ecommerce -d fastapi_ecommerce" ]
       interval: 5s
       timeout: 3s
       retries: 3

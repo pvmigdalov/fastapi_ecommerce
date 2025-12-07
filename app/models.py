@@ -1,8 +1,15 @@
-from sqlalchemy import Boolean, Column, Float, ForeignKey, Integer, String
+import enum
+
+from sqlalchemy import Boolean, Column, Enum, Float, ForeignKey, Integer, String
 from sqlalchemy.orm import relationship
 
 from app.database import Base
 
+
+class UserRole(enum.Enum):
+    ADMIN = "admin"
+    SUPPLIER = "supplier"
+    CUSTOMER = "customer"
 
 class Category(Base):
     __tablename__ = "categories"
@@ -36,5 +43,6 @@ class User(Base):
     is_admin = Column(Boolean, default=False)
     is_supplier = Column(Boolean, default=False)
     is_customer = Column(Boolean, default=True)
+    user_role = Column(Enum(UserRole), default=UserRole.CUSTOMER, server_default=UserRole.CUSTOMER.value, nullable=False)
 
     products = relationship("Product", back_populates="user")

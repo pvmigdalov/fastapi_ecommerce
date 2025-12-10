@@ -3,20 +3,22 @@ services:
     build:
       dockerfile: ./Dockerfile
       context: ./
-    environment:
-      DATABASE_URL: postgresql+asyncpg://ecommerce:ecommerce@pg:5432/fastapi_ecommerce
+    # environment:
+    #   DATABASE_URL: postgresql+asyncpg://ecommerce:ecommerce@pg:5432/fastapi_ecommerce
     ports:
       - "8000:8000"
+    volumes:
+      - ./migrations/versions:/app/migrations/versions
     depends_on:
       pg:
         condition: service_healthy
-    develop:
-      watch:
-        - action: sync+restart
-          path: ./app
-          target: ./app
-        - action: rebuild
-          path: ./requirenents.txt
+    # develop:
+    #   watch:
+    #     - action: sync+restart
+    #       path: ./app
+    #       target: ./app
+    #     - action: rebuild
+    #       path: ./requirenents.txt
         # - action: sync
         #   path: ./migrations
         #   target: ./migrations

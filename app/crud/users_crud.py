@@ -9,10 +9,10 @@ from app.schemas import CreateUser
 
 class UserCrudManager(CrudManager):
     model_name = "users"
-    Model: type[User] = User
+    Model = User
 
     @classmethod
-    async def insert(cls, session: AsyncSession, **values: dict[str, Any]):
+    async def insert(cls, session: AsyncSession, **values: Any):
         query = insert(cls.Model).values(**values)
         
         await session.execute(query)

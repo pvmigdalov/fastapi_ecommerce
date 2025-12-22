@@ -5,8 +5,10 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from slugify import slugify
 
 from app.database import Base
+from app.utils import non_instantiable
 
 
+@non_instantiable
 class CrudManager:
     model_name: str
     Model: type[Base]
@@ -25,7 +27,7 @@ class CrudManager:
         )
 
     @classmethod
-    async def select_by_condition(cls, session: AsyncSession, **conditions: dict[str, Any]):
+    async def select_by_condition(cls, session: AsyncSession, **conditions: Any):
         query = select(cls.Model)
         for column_name, value in conditions.items():
             if column := getattr(cls.Model, column_name, None):
@@ -37,7 +39,7 @@ class CrudManager:
 
     
     @classmethod
-    async def insert(cls, session: AsyncSession, **values: dict[str, Any]):
+    async def insert(cls, session: AsyncSession, **values: Any):
         query = insert(cls.Model).values(
             slug = slugify(values["name"]),
             **values
@@ -46,7 +48,7 @@ class CrudManager:
         await session.commit()
     
     @classmethod
-    async def update(cls, session: AsyncSession, _id: int, **values: dict[str, Any]):
+    async def update(cls, session: AsyncSession, _id: int, **values: Any):
         update_values = dict(**values)
         if "name" in values:
             update_values["slug"] = slugify(values["name"])

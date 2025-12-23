@@ -1,4 +1,11 @@
+from enum import Enum
+
 from pydantic import BaseModel, EmailStr
+
+
+class UserRole(str, Enum):
+    SUPPLIER = "SUPPLIER"
+    CUSTOMER = "CUSTOMER"    
 
 class CreateProduct(BaseModel):
     name: str
@@ -7,7 +14,6 @@ class CreateProduct(BaseModel):
     image_url: str
     stock: int
     category_id: int
-
 
 class CreateCategory(BaseModel):
     name: str
@@ -18,3 +24,4 @@ class CreateUser(BaseModel):
     username: str
     email: EmailStr
     password: str
+    user_role: UserRole = UserRole.CUSTOMER

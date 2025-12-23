@@ -11,6 +11,7 @@ from passlib.context import CryptContext
 from app.database import get_db_session
 from app.crud import UserCrudManager
 from app.models import User
+from app.utils import non_instantiable
 
 
 load_dotenv("app/settings/auth.env")
@@ -19,12 +20,9 @@ ALGORITHM = os.getenv("JWT_ALGORITHM")
 SECRET_KEY = os.getenv("JWT_SECRET_KEY")
 
 
+@non_instantiable
 class AuthHelper:
-
     bcrypt_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-
-    def __new__(cls, *args, **kwargs):
-        raise ValueError("This class does not involve creating instances.")
 
     @classmethod
     async def authenticate_user(

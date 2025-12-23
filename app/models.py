@@ -10,7 +10,7 @@ class UserRole(enum.Enum):
     ADMIN = "ADMIN"
     SUPPLIER = "SUPPLIER"
     CUSTOMER = "CUSTOMER"
-
+    
 class Category(Base):
     __tablename__ = "categories"
 

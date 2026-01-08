@@ -17,7 +17,7 @@ class Category(Base):
     slug = Column(String, unique=True, index=True)
     parent_id = Column(Integer, ForeignKey("categories.id"), nullable=True)
     
-    products = relationship("Product", back_populates="category")
+    products = relationship("Product", uselist=True, back_populates="category")
 
 class Product(Base):
     __tablename__ = "products"
@@ -50,4 +50,4 @@ class User(Base):
         nullable=False
     )
 
-    products = relationship("Product", back_populates="user")
+    products = relationship("Product", uselist=True, back_populates="user")

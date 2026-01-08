@@ -5,7 +5,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.database import get_db_session
 from app.crud import ProductCrudManager
-from app.schemas import CreateProduct
+from app.schemas import ProductCreate
 from app.dependencies import check_product_exists
 
 router = APIRouter(prefix="/products", tags=["Products"])
@@ -20,7 +20,7 @@ async def get_all_products(session: session_dependency):
 @router.post("/", status_code=status.HTTP_201_CREATED)
 async def create_product(
     session: session_dependency,
-    product: CreateProduct
+    product: ProductCreate
 ):
     await ProductCrudManager.insert(session, **product.model_dump())
 
@@ -47,7 +47,7 @@ async def product_detail(
 async def update_product(
     session: session_dependency, 
     id: int,
-    product_update: CreateProduct
+    product_update: ProductCreate
 ):
     await ProductCrudManager.update(session, id, **product_update.model_dump())
 

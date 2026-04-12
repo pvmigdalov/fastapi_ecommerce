@@ -1,23 +1,24 @@
 FROM python:3.13.13-bookworm
 
-ENV PYTHONUNBUFFERED=1
-ENV PYTHONDONTWRITEBYTECODE=1
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
+
+ENV PYTHONUNBUFFERED=1 \
+    PYTHONDONTWRITEBYTECODE=1 \
+    UV_COMPILE_BYTECODE=0 \
+    UV_LINK_MODE=copy
 
 WORKDIR /app
 
-ENV PYTHONPATH=/app
-
 RUN apt update && apt upgrade -y
-RUN pip install --upgrade pip wheel
+RUN apt install -y curl
 
-COPY ./requirements.txt .
+# RUN pip install uv
+#RUN curl -LsSf https://astral.sh/uv/install.sh | sh
 
-RUN pip install -r requirements.txt
+COPY pyproject.toml uv.lock ./
+
+RUN uv sync --frozen --no-install-project --no-dev
 
 COPY ./ ./
 
-# RUN chmod +x ./entrypoint.sh
-
-# ENTRYPOINT ["./entrypoint.sh"]
-
-CMD ["python3", "app/main.py"]
+CMD ["uv", "run", "python", "-m", "app.main"]

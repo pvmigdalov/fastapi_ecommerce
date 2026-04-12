@@ -31,5 +31,5 @@ async def check_user_by_username_or_email(
     user: CreateUser
 ):
     checked_user = await UserCrudManager.select_by_username_or_email(session, user)
-    if not checked_user is None:
+    if checked_user is not None:
         raise HTTPException(status.HTTP_409_CONFLICT, "User with this username or email already exists")

@@ -16,7 +16,7 @@ class CrudManager:
     @classmethod    
     async def select_all_active(cls, session: AsyncSession):
         query = select(cls.Model) \
-            .where(cls.Model.is_active == True)
+            .where(cls.Model.is_active)
         result = await session.scalars(query)
         return result.all()
     

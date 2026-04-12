@@ -11,7 +11,7 @@ class ProductCrudManager(CrudManager):
     @classmethod    
     async def select_all_active(cls, session: AsyncSession):
         query = select(cls.Model) \
-            .where(cls.Model.is_active == True, cls.Model.stock > 0)
+            .where(cls.Model.is_active, cls.Model.stock > 0)
         result = await session.scalars(query)
         return result.all()
     

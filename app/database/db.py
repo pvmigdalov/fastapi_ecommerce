@@ -1,9 +1,11 @@
 import os
+from uuid import uuid4
 
 from dotenv import load_dotenv
-from sqlalchemy import Boolean, Column, Integer, String
+from sqlalchemy import Boolean, Column, String
 from sqlalchemy.orm import DeclarativeBase
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker, AsyncSession
+from sqlalchemy.dialects.postgresql import UUID
 
 load_dotenv("app/settings/db.env")
 DATABASE_URL = os.getenv("DATABASE_URL")
@@ -17,6 +19,6 @@ async def get_db_session():
         yield session
 
 class Base(DeclarativeBase):
-    id = Column(Integer, primary_key=True, index=True)
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid4)
     name = Column(String)
     is_active = Column(Boolean, default=True)

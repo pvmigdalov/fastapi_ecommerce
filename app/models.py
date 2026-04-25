@@ -2,6 +2,7 @@ import enum
 
 from sqlalchemy import Column, Enum, Float, ForeignKey, Integer, String
 from sqlalchemy.orm import relationship
+from sqlalchemy.dialects.postgresql import UUID
 
 from app.database import Base
 
@@ -15,7 +16,7 @@ class Category(Base):
     __tablename__ = "categories"
 
     slug = Column(String, unique=True, index=True)
-    parent_id = Column(Integer, ForeignKey("categories.id"), nullable=True)
+    parent_id = Column(UUID(as_uuid=True), ForeignKey("categories.id"), nullable=True)
     
     products = relationship("Product", uselist=True, back_populates="category")
 
@@ -28,8 +29,8 @@ class Product(Base):
     image_url = Column(String)
     stock = Column(Integer)
     rating = Column(Float)
-    category_id = Column(Integer, ForeignKey("categories.id"))
-    supplier_id = Column(Integer, ForeignKey("users.id"), nullable=True)
+    category_id = Column(UUID(as_uuid=True), ForeignKey("categories.id"))
+    supplier_id = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=True)
 
     category = relationship("Category", back_populates="products")
     user = relationship("User", back_populates="products")

@@ -6,10 +6,10 @@ from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 # from sqlalchemy.ext.asyncio import AsyncSession
 
 # from app.database import get_db_session
-from app.crud import UserCrudManager
-from app.schemas import CreateUser
-from app.dependencies import check_user_by_username_or_email, session_dependency
-from app.auth_utils import AuthHelper
+from crud import UserCrudManager
+from schemas import CreateUser
+from dependencies import check_user_by_username_or_email, session_dependency
+from auth_utils import AuthHelper
 
 
 router = APIRouter(prefix="/auth", tags=["Auth"])

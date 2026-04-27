@@ -8,13 +8,13 @@ from fastapi import Depends, status, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 from passlib.context import CryptContext
 
-from app.database import get_db_session
-from app.crud import UserCrudManager
-from app.models import User
-from app.utils import non_instantiable
+from database import get_db_session
+from crud import UserCrudManager
+from models import User
+from utils import non_instantiable
 
 
-load_dotenv("app/settings/auth.env")
+load_dotenv("settings/auth.env")
 
 ALGORITHM = os.getenv("JWT_ALGORITHM")
 SECRET_KEY = os.getenv("JWT_SECRET_KEY")

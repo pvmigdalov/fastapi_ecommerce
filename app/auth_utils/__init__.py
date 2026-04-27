@@ -1,1 +1,1 @@
-from app.auth_utils.auth import AuthHelper
+from .auth import AuthHelper

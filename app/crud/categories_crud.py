@@ -1,5 +1,5 @@
-from app.crud.crud import CrudManager
-from app.models import Category
+from crud.crud import CrudManager
+from models import Category
 
 class CategoryCrudManager(CrudManager):
     model_name = "categories"

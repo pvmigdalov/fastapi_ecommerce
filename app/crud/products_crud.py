@@ -1,8 +1,8 @@
 from sqlalchemy import select, union
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.crud.crud import CrudManager
-from app.models import Category, Product
+from crud.crud import CrudManager
+from models import Category, Product
 
 class ProductCrudManager(CrudManager):
     model_name = "products"

@@ -3,9 +3,9 @@ from typing import Annotated
 from fastapi import Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.database import get_db_session
-from app.crud import CrudManager, CategoryCrudManager, ProductCrudManager, UserCrudManager
-from app.schemas import CreateUser
+from database import get_db_session
+from crud import CrudManager, CategoryCrudManager, ProductCrudManager, UserCrudManager
+from schemas import CreateUser
 
 
 session_dependency = Annotated[AsyncSession, Depends(get_db_session)]

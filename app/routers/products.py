@@ -4,9 +4,9 @@ from fastapi import APIRouter, Depends, status
 # from sqlalchemy.ext.asyncio import AsyncSession
 
 # from app.database import get_db_session
-from app.crud import ProductCrudManager
-from app.schemas import ProductCreate
-from app.dependencies import check_product_exists, session_dependency
+from crud import ProductCrudManager
+from schemas import ProductCreate
+from dependencies import check_product_exists, session_dependency
 
 router = APIRouter(prefix="/products", tags=["Products"])
 

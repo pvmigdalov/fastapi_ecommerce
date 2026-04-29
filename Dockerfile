@@ -7,13 +7,13 @@ ENV PYTHONUNBUFFERED=1 \
     UV_COMPILE_BYTECODE=0 \
     UV_LINK_MODE=copy
 
-WORKDIR /app
+WORKDIR /fastapi_ecommerce
 
 RUN apt update && apt upgrade -y
-RUN apt install -y curl
+# RUN apt install -y curl
 
 # RUN pip install uv
-#RUN curl -LsSf https://astral.sh/uv/install.sh | sh
+# RUN curl -LsSf https://astral.sh/uv/install.sh | sh
 
 COPY pyproject.toml uv.lock ./
 
@@ -21,4 +21,4 @@ RUN uv sync --frozen --no-install-project --no-dev
 
 COPY ./ ./
 
-CMD ["uv", "run", "python", "-m", "app.main"]
+CMD ["uv", "run", "python", "app/main.py"]

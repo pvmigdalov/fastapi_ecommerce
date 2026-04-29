@@ -21,4 +21,4 @@ RUN uv sync --frozen --no-install-project --no-dev
 
 COPY ./ ./
 
-CMD ["uv", "run", "python", "app/main.py"]
+CMD ["uv", "run", "python", "-m", "app.main"]

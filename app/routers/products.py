@@ -1,11 +1,12 @@
 # from typing import Annotated
+from typing import Sequence
 
 from fastapi import APIRouter, Depends, status
 # from sqlalchemy.ext.asyncio import AsyncSession
 
 # from app.database import get_db_session
 from crud import ProductCrudManager
-from schemas import ProductCreate
+from schemas import Product, ProductCreate
 from dependencies import check_product_exists, session_dependency
 
 router = APIRouter(prefix="/products", tags=["Products"])
@@ -13,7 +14,7 @@ router = APIRouter(prefix="/products", tags=["Products"])
 # session_dependency = Annotated[AsyncSession, Depends(get_db_session)]
 
 @router.get("/")
-async def get_all_products(session: session_dependency):
+async def get_all_products(session: session_dependency) -> Sequence[Product]:
     return await ProductCrudManager.select_all_active(session)
 
 

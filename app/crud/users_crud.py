@@ -3,9 +3,10 @@ from typing import Any
 from sqlalchemy import insert, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from crud.crud import CrudManager
-from models import User
-from schemas import CreateUser
+from .crud import CrudManager
+from ..models import User
+from ..schemas import CreateUser
+
 
 class UserCrudManager(CrudManager):
     model_name = "users"

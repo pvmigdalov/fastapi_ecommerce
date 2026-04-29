@@ -4,8 +4,8 @@ from sqlalchemy import insert, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 from slugify import slugify
 
-from database import Base
-from utils import non_instantiable
+from ..database import Base
+from ..utils import non_instantiable
 
 
 @non_instantiable

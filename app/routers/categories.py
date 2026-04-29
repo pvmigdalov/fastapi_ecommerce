@@ -1,12 +1,8 @@
-# from typing import Annotated
-
 from fastapi import APIRouter, Depends, status
-# from sqlalchemy.ext.asyncio import AsyncSession
 
-# from app.database import get_db_session
-from crud import CategoryCrudManager
-from schemas import CreateCategory
-from dependencies import check_category_exists, session_dependency
+from ..crud import CategoryCrudManager
+from ..schemas import CreateCategory
+from ..dependencies import check_category_exists, session_dependency
 
 
 router = APIRouter(prefix="/categories", tags=["Categories"])

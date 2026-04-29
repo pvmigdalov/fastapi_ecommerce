@@ -4,7 +4,7 @@ from sqlalchemy import Column, Enum, Float, ForeignKey, Integer, String
 from sqlalchemy.orm import relationship
 from sqlalchemy.dialects.postgresql import UUID
 
-from database import Base
+from .database import Base
 
 
 class UserRole(enum.Enum):
@@ -28,7 +28,7 @@ class Product(Base):
     price = Column(Float)
     image_url = Column(String)
     stock = Column(Integer)
-    rating = Column(Float)
+    rating = Column(Float, default=0)
     category_id = Column(UUID(as_uuid=True), ForeignKey("categories.id"))
     supplier_id = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=True)
 

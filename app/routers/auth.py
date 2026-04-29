@@ -3,17 +3,14 @@ from typing import Annotated
 
 from fastapi import APIRouter, Depends, status
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
-# from sqlalchemy.ext.asyncio import AsyncSession
 
-# from app.database import get_db_session
-from crud import UserCrudManager
-from schemas import CreateUser
-from dependencies import check_user_by_username_or_email, session_dependency
-from auth_utils import AuthHelper
+from ..crud import UserCrudManager
+from ..schemas import CreateUser
+from ..dependencies import check_user_by_username_or_email, session_dependency
+from ..auth_utils import AuthHelper
 
 
 router = APIRouter(prefix="/auth", tags=["Auth"])
-# session_dependency = Annotated[AsyncSession, Depends(get_db_session)]
 
 @router.post("/", status_code=status.HTTP_201_CREATED, dependencies=[Depends(check_user_by_username_or_email)])
 async def create_user(session: session_dependency, user: CreateUser):

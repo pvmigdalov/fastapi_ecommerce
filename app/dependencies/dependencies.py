@@ -1,4 +1,5 @@
 from typing import Annotated
+from uuid import UUID
 
 from fastapi import Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -16,7 +17,7 @@ class _CheckerExistsByID:
     async def __call__(
         self,
         session: session_dependency,
-        id: int
+        id: UUID
     ):
         value = await self.crud_manager.select_by_id(session, id)
         if value is None:

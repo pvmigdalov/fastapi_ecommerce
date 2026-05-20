@@ -10,7 +10,8 @@ router = APIRouter(prefix="/products", tags=["Products"])
 
 @router.get("/")
 async def get_all_products(session: session_dependency) -> Sequence[Product]:
-    return await ProductCrudManager.select_all_active(session)
+    products = await ProductCrudManager.select_all_active(session)
+    return [Product.model_validate(product) for product in products]
 
 
 @router.post("/", status_code=status.HTTP_201_CREATED)

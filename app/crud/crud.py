@@ -1,4 +1,4 @@
-from typing import Any
+from typing import Any, Sequence
 
 from sqlalchemy import insert, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -14,20 +14,20 @@ class CrudManager:
     Model: type[Base]
 
     @classmethod    
-    async def select_all_active(cls, session: AsyncSession):
+    async def select_all_active(cls, session: AsyncSession) -> Sequence[Base]:
         query = select(cls.Model) \
             .where(cls.Model.is_active)
         result = await session.scalars(query)
         return result.all()
     
     @classmethod
-    async def select_by_id(cls, session: AsyncSession, _id: int):
+    async def select_by_id(cls, session: AsyncSession, _id: int) -> Base | None:
         return await session.scalar(
             select(cls.Model).where(cls.Model.id == _id)
         )
 
     @classmethod
-    async def select_by_condition(cls, session: AsyncSession, **conditions: Any):
+    async def select_by_condition(cls, session: AsyncSession, **conditions: Any) -> Base | None:
         query = select(cls.Model)
         for column_name, value in conditions.items():
             if column := getattr(cls.Model, column_name, None):
@@ -39,7 +39,7 @@ class CrudManager:
 
     
     @classmethod
-    async def insert(cls, session: AsyncSession, **values: Any):
+    async def insert(cls, session: AsyncSession, **values: Any) -> None:
         query = insert(cls.Model).values(
             slug = slugify(values["name"]),
             **values
@@ -48,7 +48,7 @@ class CrudManager:
         await session.commit()
     
     @classmethod
-    async def update(cls, session: AsyncSession, _id: int, **values: Any):
+    async def update(cls, session: AsyncSession, _id: int, **values: Any) -> None:
         update_values = dict(**values)
         if "name" in values:
             update_values["slug"] = slugify(values["name"])

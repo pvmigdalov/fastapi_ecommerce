@@ -11,7 +11,7 @@ from ..schemas import CreateUser
 
 session_dependency = Annotated[AsyncSession, Depends(get_db_session)]
 class _CheckerExistsByID:
-    def __init__(self, crud_manager: BaseCrudManager):
+    def __init__(self, crud_manager: type[BaseCrudManager]):
         self.crud_manager = crud_manager
 
     async def __call__(

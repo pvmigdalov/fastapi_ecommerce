@@ -1,15 +1,14 @@
+from abc import ABC, abstractmethod
 from typing import Any, Sequence
 
+from slugify import slugify
 from sqlalchemy import insert, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
-from slugify import slugify
 
 from ..database import Base
-from ..utils import non_instantiable
 
 
-@non_instantiable
-class CrudManager:
+class BaseCrudManager:
     model_name: str
     Model: type[Base]
 
@@ -58,3 +57,10 @@ class CrudManager:
             .values(**update_values)
         await session.execute(query)
         await session.commit()
+
+
+# class BaseCrudManager[T](ABC):
+#     @classmethod
+#     @abstractmethod
+#     async def select_all_active(cls, session: AsyncSession) -> Sequence[T]:
+#         ...

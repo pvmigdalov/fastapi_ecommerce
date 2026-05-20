@@ -1,7 +1,7 @@
-from .crud import CrudManager
+from .crud import BaseCrudManager
 from ..models import Category
 
 
-class CategoryCrudManager(CrudManager):
+class CategoryCrudManager(BaseCrudManager):
     model_name = "categories"
     Model = Category

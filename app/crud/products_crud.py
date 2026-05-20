@@ -3,11 +3,11 @@ from typing import Sequence
 from sqlalchemy import select, union
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from .crud import CrudManager
+from .crud import BaseCrudManager
 from ..models import Category, Product
 
 
-class ProductCrudManager(CrudManager):
+class ProductCrudManager(BaseCrudManager):
     model_name = "products"
     Model = Product
 
@@ -39,3 +39,15 @@ class ProductCrudManager(CrudManager):
 
         result = await session.scalars(query)
         return result.all()
+    
+# from .crud import BaseCrudManager
+
+# class PM(BaseCrudManager[Product]):
+#     @classmethod
+#     async def select_all_active(cls, session: AsyncSession):
+#         query = select(Product) \
+#             .where(Product.is_active, Product.stock > 0)
+#         result = await session.scalars(query)
+#         return result.all()
+    
+# PM.select_all_active()

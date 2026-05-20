@@ -4,13 +4,13 @@ from fastapi import Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from ..database import get_db_session
-from ..crud import CrudManager, CategoryCrudManager, ProductCrudManager, UserCrudManager
+from ..crud import BaseCrudManager, CategoryCrudManager, ProductCrudManager, UserCrudManager
 from ..schemas import CreateUser
 
 
 session_dependency = Annotated[AsyncSession, Depends(get_db_session)]
 class _CheckerExistsByID:
-    def __init__(self, crud_manager: CrudManager):
+    def __init__(self, crud_manager: BaseCrudManager):
         self.crud_manager = crud_manager
 
     async def __call__(

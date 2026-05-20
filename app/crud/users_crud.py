@@ -3,12 +3,12 @@ from typing import Any
 from sqlalchemy import insert, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from .crud import CrudManager
+from .crud import BaseCrudManager
 from ..models import User
 from ..schemas import CreateUser
 
 
-class UserCrudManager(CrudManager):
+class UserCrudManager(BaseCrudManager):
     model_name = "users"
     Model = User
 

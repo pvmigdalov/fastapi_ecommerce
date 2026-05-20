@@ -1,4 +1,4 @@
-from typing import Annotated
+from typing import Annotated, NoReturn
 from uuid import UUID
 
 from fastapi import Depends, HTTPException, status
@@ -30,7 +30,7 @@ check_user_exists = _CheckerExistsByID(UserCrudManager)
 async def check_user_by_username_or_email(
     session: session_dependency,
     user: CreateUser
-):
+) -> NoReturn | None:
     checked_user = await UserCrudManager.select_by_username_or_email(session, user)
     if checked_user is not None:
         raise HTTPException(status.HTTP_409_CONFLICT, "User with this username or email already exists")

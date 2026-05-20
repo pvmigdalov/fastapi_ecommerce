@@ -1,6 +1,7 @@
 from typing import Sequence
+from uuid import UUID
 
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, Depends, HTTPException, status
 
 from ..crud import ProductCrudManager
 from ..schemas import Product, ProductCreate
@@ -24,7 +25,18 @@ async def create_product(
     return {"transaction": "Successful"}
 
 
-@router.get("/{category_slug}")
+@router.get("/{product_id:uuid}")
+async def get_product(
+    session: session_dependency, 
+    product_id: UUID
+) -> Product:
+    product = await ProductCrudManager.select_by_id(session, product_id)
+    if not product:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Product not found")
+    return Product.model_validate(product)
+
+
+@router.get("/{category_slug:str}")
 async def product_by_category(
     session: session_dependency,
     category_slug: str
@@ -43,10 +55,10 @@ async def product_detail(
 @router.put("/{product_id}", dependencies=[Depends(check_product_exists)])
 async def update_product(
     session: session_dependency, 
-    id: int,
+    product_id: UUID,
     product_update: ProductCreate
 ):
-    await ProductCrudManager.update(session, id, **product_update.model_dump())
+    await ProductCrudManager.update(session, product_id, **product_update.model_dump())
 
     return {
         "transaction": "Product update is successful"
@@ -56,7 +68,7 @@ async def update_product(
 @router.delete("/", dependencies=[Depends(check_product_exists)])
 async def delete_product(
     session: session_dependency, 
-    id: int
+    id: UUID
 ):
     await ProductCrudManager.update(session, id, is_active=False)
     return {"transaction": "Product delete is successful"}

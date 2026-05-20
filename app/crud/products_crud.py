@@ -1,3 +1,5 @@
+from typing import Sequence
+
 from sqlalchemy import select, union
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -10,7 +12,7 @@ class ProductCrudManager(CrudManager):
     Model = Product
 
     @classmethod    
-    async def select_all_active(cls, session: AsyncSession):
+    async def select_all_active(cls, session: AsyncSession) -> Sequence[Product]:
         query = select(cls.Model) \
             .where(cls.Model.is_active, cls.Model.stock > 0)
         result = await session.scalars(query)
@@ -21,7 +23,7 @@ class ProductCrudManager(CrudManager):
         cls, 
         session: AsyncSession, 
         category_slug: str
-    ):
+    ) -> Sequence[Product]:
         category_by_slug = select(Category.id) \
             .where(Category.slug == category_slug) \
             .cte()

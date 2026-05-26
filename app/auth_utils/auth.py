@@ -29,39 +29,36 @@ class AuthHelper:
         cls,
         session: Annotated[AsyncSession, Depends(get_db_session)],
         username: str,
-        password: str
+        password: str,
     ) -> User:
         user = await UserCrudManager.select_by_condition(session, username=username)
-        if not user \
-            or not cls.bcrypt_context.verify(password, user.hashed_password) \
-            or not user.is_active:
-            
+        if (
+            not user
+            or not cls.bcrypt_context.verify(password, user.hashed_password)
+            or not user.is_active
+        ):
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Invalid authentication credentials",
                 headers={"WWW-Authenticate": "Bearer"},
             )
-        
+
         return user
-    
+
     @classmethod
-    def create_access_token(
-        cls,
-        user: User,
-        expires_delta: timedelta
-    ) -> str:
+    def create_access_token(cls, user: User, expires_delta: timedelta) -> str:
         payload = {
             "sub": user.username,
             "id": user.id,
             "is_admin": user.is_admin,
             "is_supplier": user.is_supplier,
             "is_customer": user.is_customer,
-            "exp": datetime.now(timezone.utc) + expires_delta
+            "exp": datetime.now(timezone.utc) + expires_delta,
         }
 
         payload["exp"] = int(payload["exp"].timestamp())
         return jwt.encode(payload, SECRET_KEY, algorithm=ALGORITHM)
-    
+
     @classmethod
     def decode_token(cls, jwt_token: str):
         payload = jwt.decode(jwt_token, key=SECRET_KEY, algorithms=[ALGORITHM])

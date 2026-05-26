@@ -11,14 +11,16 @@ class UserRole(enum.Enum):
     ADMIN = "ADMIN"
     SUPPLIER = "SUPPLIER"
     CUSTOMER = "CUSTOMER"
-    
+
+
 class Category(Base):
     __tablename__ = "categories"
 
     slug = Column(String, unique=True, index=True)
     parent_id = Column(UUID(as_uuid=True), ForeignKey("categories.id"), nullable=True)
-    
+
     products = relationship("Product", uselist=True, back_populates="category")
+
 
 class Product(Base):
     __tablename__ = "products"
@@ -35,6 +37,7 @@ class Product(Base):
     category = relationship("Category", back_populates="products")
     user = relationship("User", back_populates="products")
 
+
 class User(Base):
     __tablename__ = "users"
 
@@ -45,10 +48,10 @@ class User(Base):
     # is_supplier = Column(Boolean, default=False)
     # is_customer = Column(Boolean, default=True)
     user_role = Column(
-        Enum(UserRole), 
-        default=UserRole.CUSTOMER, 
-        server_default=UserRole.CUSTOMER.value, 
-        nullable=False
+        Enum(UserRole),
+        default=UserRole.CUSTOMER,
+        server_default=UserRole.CUSTOMER.value,
+        nullable=False,
     )
 
     products = relationship("Product", uselist=True, back_populates="user")

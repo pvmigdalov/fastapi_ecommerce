@@ -23,7 +23,9 @@ class BaseCrudManager[T: Base]:
         return await session.scalar(select(cls.Model).where(cls.Model.id == _id))
 
     @classmethod
-    async def select_by_condition(cls, session: AsyncSession, **conditions: Any) -> T | None:
+    async def select_by_condition(
+        cls, session: AsyncSession, **conditions: Any
+    ) -> T | None:
         query = select(cls.Model)
         for column_name, value in conditions.items():
             if column := getattr(cls.Model, column_name, None):
@@ -38,7 +40,6 @@ class BaseCrudManager[T: Base]:
         query = insert(cls.Model).values(slug=slugify(values["name"]), **values)
         await session.execute(query)
         await session.commit()
-        
 
     @classmethod
     async def update(cls, session: AsyncSession, _id: UUID, **values: Any) -> None:

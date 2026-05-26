@@ -12,7 +12,12 @@ from ..auth_utils import AuthHelper
 
 router = APIRouter(prefix="/auth", tags=["Auth"])
 
-@router.post("/", status_code=status.HTTP_201_CREATED, dependencies=[Depends(check_user_by_username_or_email)])
+
+@router.post(
+    "/",
+    status_code=status.HTTP_201_CREATED,
+    dependencies=[Depends(check_user_by_username_or_email)],
+)
 async def create_user(session: session_dependency, user: CreateUser):
     user_data = user.model_dump()
     password = user_data.pop("password")
@@ -24,17 +29,18 @@ async def create_user(session: session_dependency, user: CreateUser):
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/token")
 
+
 @router.post("/token")
 async def get_token(
     session: session_dependency,
-    form_data: Annotated[OAuth2PasswordRequestForm, Depends()]
+    form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
 ):
-    user = await AuthHelper.authenticate_user(session, form_data.username, form_data.password)
+    user = await AuthHelper.authenticate_user(
+        session, form_data.username, form_data.password
+    )
     token = AuthHelper.create_access_token(user, timedelta(days=1))
-    return {
-        "access_token": token,
-        "token_type": "bearer"
-    }
+    return {"access_token": token, "token_type": "bearer"}
+
 
 @router.get("/me")
 async def get_me(user_jwt: Annotated[str, Depends(oauth2_scheme)]):

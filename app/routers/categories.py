@@ -1,4 +1,3 @@
-from gettext import Catalog
 from typing import Sequence
 from uuid import UUID
 

@@ -35,7 +35,7 @@ async def get_product(session: session_dependency, product_id: UUID) -> Product:
 
 
 @router.get("/{category_slug:str}")
-async def product_by_category(
+async def get_product_by_category(
     session: session_dependency, category_slug: str
 ) -> Sequence[Product]:
     products = await ProductCrudManager.select_products_by_category(
@@ -49,7 +49,7 @@ async def product_by_category(
 
 
 @router.get("/detail/{product_slug}")
-async def product_detail(session: session_dependency, product_slug: str) -> Product:
+async def get_product_detail(session: session_dependency, product_slug: str) -> Product:
     product = await ProductCrudManager.select_by_condition(session, slug=product_slug)
     if not product:
         raise HTTPException(
@@ -68,5 +68,5 @@ async def update_product(
 
 @router.delete("/{product_id}", dependencies=[Depends(check_product_exists)])
 async def delete_product(session: session_dependency, product_id: UUID):
-    await ProductCrudManager.update(session, id, is_active=False)
+    await ProductCrudManager.update(session, product_id, is_active=False)
     return {"transaction": "Product delete is successful"}

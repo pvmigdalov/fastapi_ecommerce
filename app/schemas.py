@@ -2,7 +2,7 @@ from decimal import Decimal
 from enum import Enum
 from typing import Annotated
 
-from pydantic import AnyHttpUrl, BaseModel, ConfigDict, EmailStr, Field, UUID4
+from pydantic import UUID4, AnyHttpUrl, BaseModel, ConfigDict, EmailStr, Field
 
 
 class UserRole(str, Enum):

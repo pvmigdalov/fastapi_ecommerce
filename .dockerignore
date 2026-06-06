@@ -1,4 +1,5 @@
 .git/
 .venv/
 .vscode/
+.zed/
 __pycache__/

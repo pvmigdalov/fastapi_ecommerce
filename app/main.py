@@ -1,9 +1,7 @@
-from fastapi import FastAPI
 import uvicorn
+from fastapi import FastAPI
 
-from app.routers import categories_router
-from app.routers import products_router
-from app.routers import auth_router
+from app.routers import auth_router, categories_router, products_router
 
 app = FastAPI()
 

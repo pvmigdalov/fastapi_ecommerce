@@ -1,17 +1,15 @@
 import os
-from uuid import uuid4
+import uuid
 
 from dotenv import load_dotenv
-from sqlalchemy import Boolean, Column, String
-from sqlalchemy.orm import DeclarativeBase
-from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker, AsyncSession
 from sqlalchemy.dialects.postgresql import UUID
-
+from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
+from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
 load_dotenv("app/settings/db.env")
 DATABASE_URL = os.getenv("DATABASE_URL")
 
-engine = create_async_engine(DATABASE_URL, echo=True)
+engine = create_async_engine(DATABASE_URL, echo=True)  # pyright: ignore
 Session = async_sessionmaker(engine, expire_on_commit=False, class_=AsyncSession)
 
 
@@ -21,6 +19,8 @@ async def get_db_session():
 
 
 class Base(DeclarativeBase):
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid4)
-    name = Column(String)
-    is_active = Column(Boolean, default=True)
+    id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), primary_key=True, default=uuid.uuid4
+    )
+    name: Mapped[str] = mapped_column()
+    is_active: Mapped[bool] = mapped_column(default=True)

@@ -25,4 +25,6 @@ class User(Base):
         nullable=False,
     )
 
-    products = relationship("Product", uselist=True, back_populates="user")
+    products: Mapped[list["Product"]] = relationship(
+        "Product", uselist=True, back_populates="user"
+    )

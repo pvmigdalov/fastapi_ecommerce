@@ -24,5 +24,5 @@ class Product(Base):
         UUID(as_uuid=True), ForeignKey("users.id"), nullable=True
     )
 
-    category = relationship("Category", back_populates="products")
-    user = relationship("User", back_populates="products")
+    category: Mapped["Category"] = relationship("Category", back_populates="products")
+    user: Mapped["User"] = relationship("User", back_populates="products")

@@ -15,4 +15,6 @@ class Category(Base):
         UUID(as_uuid=True), ForeignKey("categories.id"), nullable=True
     )
 
-    products = relationship("Product", uselist=True, back_populates="category")
+    products: Mapped[list["Product"]] = relationship(
+        "Product", uselist=True, back_populates="category"
+    )

@@ -16,5 +16,11 @@ class Category(Base):
     )
 
     products: Mapped[list["Product"]] = relationship(
-        "Product", uselist=True, back_populates="category"
+        "Product", back_populates="category"
+    )
+    children: Mapped[list["Category"]] = relationship(
+        "Category", back_populates="parent"
+    )
+    parent: Mapped["Category | None"] = relationship(
+        "Category", remote_side="Category.id", back_populates="children"
     )

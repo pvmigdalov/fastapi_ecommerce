@@ -12,9 +12,9 @@ class Product(Base):
     __tablename__ = "products"
 
     slug: Mapped[str] = mapped_column(unique=True, index=True)
-    description: Mapped[str] = mapped_column(default="")
+    description: Mapped[str | None] = mapped_column(default=None)
     price: Mapped[Decimal] = mapped_column(Numeric(precision=15, scale=2))
-    image_url: Mapped[str] = mapped_column(default="")
+    image_url: Mapped[str | None] = mapped_column(default=None)
     stock: Mapped[int] = mapped_column(default=0)
     rating: Mapped[float] = mapped_column(default=0.0)
     category_id: Mapped[uuid.UUID] = mapped_column(

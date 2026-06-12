@@ -4,11 +4,10 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, status
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 
-from ..crud import UserCrudManager
-from ..schemas import CreateUser
-from ..dependencies import check_user_by_username_or_email, session_dependency
-from ..auth_utils import AuthHelper
-
+from app.auth_utils import AuthHelper
+from app.crud import UserCrudManager
+from app.dependencies import check_user_by_username_or_email, session_dependency
+from app.schemas import CreateUser
 
 router = APIRouter(prefix="/auth", tags=["Auth"])
 

@@ -3,9 +3,9 @@ from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, status
 
-from ..crud import ProductCrudManager
-from ..dependencies import check_product_exists, session_dependency
-from ..schemas import Product, ProductCreate
+from app.crud import ProductCrudManager
+from app.dependencies import check_product_exists, session_dependency
+from app.schemas import Product, ProductCreate
 
 router = APIRouter(prefix="/products", tags=["Products"])
 

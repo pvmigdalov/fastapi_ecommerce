@@ -3,8 +3,8 @@ from typing import Sequence
 from sqlalchemy import select, union
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from ..models import Category, Product
-from .crud import BaseCrudManager
+from app.crud.crud import BaseCrudManager
+from app.models import Category, Product
 
 
 class ProductCrudManager(BaseCrudManager[Product]):

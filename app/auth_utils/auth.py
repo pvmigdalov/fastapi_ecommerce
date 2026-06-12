@@ -8,10 +8,10 @@ from fastapi import Depends, HTTPException, status
 from passlib.context import CryptContext
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from ..crud import UserCrudManager
-from ..database import get_db_session
-from ..models import User
-from ..utils import non_instantiable
+from app.crud import UserCrudManager
+from app.database import get_db_session
+from app.models import User
+from app.utils import non_instantiable
 
 load_dotenv("settings/auth.env")
 

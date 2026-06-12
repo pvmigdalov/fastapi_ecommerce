@@ -1,5 +1,5 @@
-from .crud import BaseCrudManager
-from ..models import Category
+from app.crud.crud import BaseCrudManager
+from app.models import Category
 
 
 class CategoryCrudManager(BaseCrudManager[Category]):

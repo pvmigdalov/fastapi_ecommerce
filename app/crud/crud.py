@@ -5,7 +5,7 @@ from slugify import slugify
 from sqlalchemy import insert, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from ..database import Base
+from app.database import Base
 
 
 class BaseCrudManager[T: Base]:

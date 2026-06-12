@@ -3,9 +3,9 @@ from uuid import UUID
 
 from fastapi import APIRouter, Depends, status
 
-from ..crud import CategoryCrudManager
-from ..dependencies import check_category_exists, session_dependency
-from ..schemas import Category, CreateCategory
+from app.crud import CategoryCrudManager
+from app.dependencies import check_category_exists, session_dependency
+from app.schemas import Category, CreateCategory
 
 router = APIRouter(prefix="/categories", tags=["Categories"])
 

@@ -4,15 +4,14 @@ from uuid import UUID
 from fastapi import Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from ..database import get_db_session
-from ..crud import (
+from app.crud import (
     BaseCrudManager,
     CategoryCrudManager,
     ProductCrudManager,
     UserCrudManager,
 )
-from ..schemas import CreateUser
-
+from app.database import get_db_session
+from app.schemas import CreateUser
 
 session_dependency = Annotated[AsyncSession, Depends(get_db_session)]
 

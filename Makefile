@@ -33,3 +33,19 @@ app-shell:
 .PHONY: app-logs
 app-logs:
 	docker compose logs -f app
+
+.PHONY: create-revision
+create-revision:
+	@if [ -z "$(MSG)" ]; then \
+		echo "Error: MIGRATION name is required"; \
+		echo "Usage: make migrate MIGRATION=\"Some description\""; \
+		exit 1; \
+	fi
+	alembic revision --autogenerate -m "$(MSG)"
+
+.PHONY: upgrade-head
+upgrade-head: create-revision
+	alembic upgrade head
+
+.PHONY: migrate
+migrate: upgrade-head

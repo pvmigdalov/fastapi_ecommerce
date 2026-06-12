@@ -4,15 +4,14 @@ from typing import Annotated
 
 import jwt
 from dotenv import load_dotenv
-from fastapi import Depends, status, HTTPException
-from sqlalchemy.ext.asyncio import AsyncSession
+from fastapi import Depends, HTTPException, status
 from passlib.context import CryptContext
+from sqlalchemy.ext.asyncio import AsyncSession
 
-from ..database import get_db_session
 from ..crud import UserCrudManager
+from ..database import get_db_session
 from ..models import User
 from ..utils import non_instantiable
-
 
 load_dotenv("settings/auth.env")
 

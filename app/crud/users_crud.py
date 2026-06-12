@@ -3,9 +3,9 @@ from typing import Any
 from sqlalchemy import insert, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from .crud import BaseCrudManager
 from ..models import User
 from ..schemas import CreateUser
+from .crud import BaseCrudManager
 
 
 class UserCrudManager(BaseCrudManager[User]):

@@ -20,7 +20,8 @@ class BaseCrudManager[T: Base]:
 
     @classmethod
     async def select_by_id(cls, session: AsyncSession, _id: UUID) -> T | None:
-        return await session.scalar(select(cls.Model).where(cls.Model.id == _id))
+        res = await session.scalars(select(cls.Model).where(cls.Model.id == _id))
+        return res.first()
 
     @classmethod
     async def select_by_condition(

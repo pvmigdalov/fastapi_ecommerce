@@ -9,27 +9,25 @@ from app.schemas import Category, CreateCategory
 
 router = APIRouter(prefix="/categories", tags=["Categories"])
 
-# session_dependency = Annotated[AsyncSession, Depends(get_db_session)]
+
+@router.get("/", response_model=Sequence[Category])
+async def get_all_categories(session: session_dependency):
+    return await CategoryCrudManager.select_all_active(session)
 
 
-@router.get("/")
-async def get_all_categories(session: session_dependency) -> Sequence[Category]:
-    categories = await CategoryCrudManager.select_all_active(session)
-    return [Category.model_validate(category) for category in categories]
-
-
-@router.post("/", status_code=status.HTTP_201_CREATED)
-async def create_category(
-    session: session_dependency, category: CreateCategory
-) -> CreateCategory:
-    await CategoryCrudManager.insert(session, **category.model_dump())
-    return category
+@router.post("/", status_code=status.HTTP_201_CREATED, response_model=Category)
+async def create_category(session: session_dependency, category: CreateCategory):
+    if category.parent_id:
+        await check_category_exists(session, category.parent_id)
+    return await CategoryCrudManager.insert(session, category)
 
 
 @router.put("/", dependencies=[Depends(check_category_exists)])
 async def update_category(
     session: session_dependency, id: UUID, category_update: CreateCategory
 ) -> CreateCategory:
+    if category_update.parent_id:
+        await check_category_exists(session, category_update.parent_id)
     await CategoryCrudManager.update(session, id, **category_update.model_dump())
     return category_update
 

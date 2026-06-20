@@ -36,7 +36,7 @@ class BaseCrudManager[T: Base]:
         return await session.scalar(query)
 
     @classmethod
-    async def insert(cls, session: AsyncSession, **values: Any) -> None:
+    async def insert(cls, session: AsyncSession, **values: Any):
         query = insert(cls.Model).values(slug=slugify(values["name"]), **values)
         await session.execute(query)
         await session.commit()

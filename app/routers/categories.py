@@ -22,14 +22,16 @@ async def create_category(session: session_dependency, category: CreateCategory)
     return await CategoryCrudManager.insert(session, category)
 
 
-@router.put("/", dependencies=[Depends(check_category_exists)])
+@router.put("/", response_model=Category)
 async def update_category(
     session: session_dependency, id: UUID, category_update: CreateCategory
-) -> CreateCategory:
+):
+    category_model = await check_category_exists(session, id)
     if category_update.parent_id:
         await check_category_exists(session, category_update.parent_id)
     await CategoryCrudManager.update(session, id, **category_update.model_dump())
-    return category_update
+    await session.refresh(category_model)
+    return category_model
 
 
 @router.delete("/", dependencies=[Depends(check_category_exists)])

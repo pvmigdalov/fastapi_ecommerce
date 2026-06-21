@@ -1,10 +1,12 @@
 from typing import Sequence
 
+from slugify import slugify
 from sqlalchemy import select, union
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.crud.crud import BaseCrudManager
 from app.models import Category, Product
+from app.schemas import ProductCreate
 
 
 class ProductCrudManager(BaseCrudManager[Product]):
@@ -38,3 +40,12 @@ class ProductCrudManager(BaseCrudManager[Product]):
 
         result = await session.scalars(query)
         return result.all()
+
+    @classmethod
+    async def insert(cls, session: AsyncSession, schema: ProductCreate) -> Product:  # type: ignore[override]
+        fields = schema.model_dump()
+        obj = cls.Model(slug=slugify(fields["name"]), **fields)
+        session.add(obj)
+        await session.commit()
+        await session.refresh(obj)
+        return obj

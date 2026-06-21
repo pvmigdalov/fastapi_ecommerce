@@ -19,10 +19,10 @@ async def get_all_products(session: session_dependency):
     return await ProductCrudManager.select_all_active(session)
 
 
-@router.post("/", status_code=status.HTTP_201_CREATED, response_model=ProductCreate)
+@router.post("/", status_code=status.HTTP_201_CREATED, response_model=Product)
 async def create_product(session: session_dependency, product: ProductCreate):
     await check_category_exists(session, product.category_id)
-    return await ProductCrudManager.insert(session, **product.model_dump())
+    return await ProductCrudManager.insert(session, product)
 
 
 @router.get("/{product_id:uuid}", response_model=Product)
@@ -67,7 +67,7 @@ async def update_product(
     return product
 
 
-@router.delete("/{product_id: uuid}", dependencies=[Depends(check_product_exists)])
+@router.delete("/{product_id:uuid}", dependencies=[Depends(check_product_exists)])
 async def delete_product(session: session_dependency, product_id: UUID):
     await ProductCrudManager.update(session, product_id, is_active=False)
     return {"transaction": "Product delete is successful"}

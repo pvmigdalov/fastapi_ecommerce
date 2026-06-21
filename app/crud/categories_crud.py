@@ -11,7 +11,7 @@ class CategoryCrudManager(BaseCrudManager[Category]):
     Model = Category
 
     @classmethod
-    async def insert(cls, session: AsyncSession, schema: CreateCategory) -> Category:
+    async def insert(cls, session: AsyncSession, schema: CreateCategory) -> Category:  # type: ignore[override]
         fields = schema.model_dump()
         obj = cls.Model(slug=slugify(fields["name"]), **fields)
         session.add(obj)

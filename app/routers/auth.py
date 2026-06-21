@@ -10,6 +10,7 @@ from app.dependencies import check_user_by_username_or_email, session_dependency
 from app.schemas import CreateUser
 
 router = APIRouter(prefix="/auth", tags=["Auth"])
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/token")
 
 
 @router.post(
@@ -24,9 +25,6 @@ async def create_user(session: session_dependency, user: CreateUser):
 
     await UserCrudManager.insert(session, **user_data)
     return {"transaction": "Successful"}
-
-
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/token")
 
 
 @router.post("/token")

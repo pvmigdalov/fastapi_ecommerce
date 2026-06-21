@@ -73,8 +73,24 @@ class Category(CreateCategory):
 
 
 class CreateUser(BaseModel):
+    """
+    User's schema for POST/PUT requests
+    """
+
     name: str
     username: str
     email: EmailStr
     password: str
     user_role: UserRole = UserRole.CUSTOMER
+
+
+class User(BaseModel):
+    """
+    User's schema for GET requests
+    """
+
+    id: Annotated[UUID4, Field(..., description="User uuid v4")]
+    name: str
+    username: str
+    email: EmailStr
+    user_role: UserRole

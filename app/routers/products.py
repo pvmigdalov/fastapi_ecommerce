@@ -62,6 +62,7 @@ async def update_product(
     session: session_dependency, product_id: UUID, product_update: ProductCreate
 ):
     product = await check_product_exists(session, product_id)
+    await check_category_exists(session, product_update.category_id)
     await ProductCrudManager.update(session, product_id, **product_update.model_dump())
     await session.refresh(product)
     return product

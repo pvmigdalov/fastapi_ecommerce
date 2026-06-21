@@ -35,8 +35,8 @@ async def get_product(session: session_dependency, product_id: UUID):
     return product
 
 
-@router.get("/{category_slug:str}", response_model=Sequence[Product])
-async def get_product_by_category(session: session_dependency, category_slug: str):
+@router.get("/category/{category_slug:str}", response_model=Sequence[Product])
+async def get_products_by_category(session: session_dependency, category_slug: str):
     products = await ProductCrudManager.select_products_by_category(
         session, category_slug
     )

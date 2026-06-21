@@ -7,7 +7,7 @@ from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from app.auth_utils import AuthHelper
 from app.crud import UserCrudManager
 from app.dependencies import check_user_by_username_or_email, session_dependency
-from app.schemas import CreateUser
+from app.schemas import CreateUser, CreateUserWithHashedPassword, User
 
 router = APIRouter(prefix="/auth", tags=["Auth"])
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/token")
@@ -17,14 +17,15 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/token")
     "/",
     status_code=status.HTTP_201_CREATED,
     dependencies=[Depends(check_user_by_username_or_email)],
+    response_model=User,
 )
 async def create_user(session: session_dependency, user: CreateUser):
     user_data = user.model_dump()
     password = user_data.pop("password")
     user_data["hashed_password"] = AuthHelper.bcrypt_context.hash(password)
+    new_user = CreateUserWithHashedPassword(**user_data)
 
-    await UserCrudManager.insert(session, **user_data)
-    return {"transaction": "Successful"}
+    return await UserCrudManager.insert(session, new_user)
 
 
 @router.post("/token")

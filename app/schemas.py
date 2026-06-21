@@ -84,6 +84,18 @@ class CreateUser(BaseModel):
     user_role: UserRole = UserRole.CUSTOMER
 
 
+class CreateUserWithHashedPassword(BaseModel):
+    """
+    User's schema for POST/PUT requests with hashed password
+    """
+
+    name: str
+    username: str
+    email: EmailStr
+    hashed_password: str
+    user_role: UserRole
+
+
 class User(BaseModel):
     """
     User's schema for GET requests

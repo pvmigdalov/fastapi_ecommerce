@@ -1,11 +1,11 @@
 from typing import Any
 
-from sqlalchemy import insert, select
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.crud.crud import BaseCrudManager
 from app.models import User
-from app.schemas import CreateUser
+from app.schemas import CreateUser, CreateUserWithHashedPassword
 
 
 class UserCrudManager(BaseCrudManager[User]):
@@ -13,11 +13,14 @@ class UserCrudManager(BaseCrudManager[User]):
     Model = User
 
     @classmethod
-    async def insert(cls, session: AsyncSession, **values: Any) -> None:
-        query = insert(cls.Model).values(**values)
-
-        await session.execute(query)
+    async def insert(  # type: ignore[override]
+        cls, session: AsyncSession, schema: CreateUserWithHashedPassword
+    ) -> User:
+        obj = cls.Model(**schema.model_dump())
+        session.add(obj)
         await session.commit()
+        await session.refresh(obj)
+        return obj
 
     @classmethod
     async def select_by_username_or_email(

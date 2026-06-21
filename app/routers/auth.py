@@ -23,9 +23,10 @@ async def create_user(session: session_dependency, user: CreateUser):
     user_data = user.model_dump()
     password = user_data.pop("password")
     user_data["hashed_password"] = AuthHelper.bcrypt_context.hash(password)
-    new_user = CreateUserWithHashedPassword(**user_data)
 
-    return await UserCrudManager.insert(session, new_user)
+    return await UserCrudManager.insert(
+        session, CreateUserWithHashedPassword(**user_data)
+    )
 
 
 @router.post("/token")

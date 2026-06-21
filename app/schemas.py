@@ -94,3 +94,5 @@ class User(BaseModel):
     username: str
     email: EmailStr
     user_role: UserRole
+
+    model_config = ConfigDict(from_attributes=True)

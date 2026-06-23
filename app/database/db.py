@@ -1,5 +1,6 @@
 import os
 import uuid
+from typing import AsyncGenerator
 
 from dotenv import load_dotenv
 from sqlalchemy.dialects.postgresql import UUID
@@ -13,7 +14,7 @@ engine = create_async_engine(DATABASE_URL, echo=True)  # pyright: ignore
 Session = async_sessionmaker(engine, expire_on_commit=False, class_=AsyncSession)
 
 
-async def get_db_session():
+async def get_db_session() -> AsyncGenerator[AsyncSession, None]:
     async with Session() as session:
         yield session
 

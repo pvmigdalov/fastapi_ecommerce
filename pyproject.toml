@@ -44,9 +44,9 @@ dev = [
     "ruff>=0.15.10",
 ]
 
-[build-system]
-requires = ["setuptools>=82.0.1", "wheel"]
-build-backend = "setuptools.build_meta"
+# [build-system]
+# requires = ["setuptools>=82.0.1", "wheel"]
+# build-backend = "setuptools.build_meta"
 
-[tool.setuptools.packages.find]
-where = ["app"]
+# [tool.setuptools.packages.find]
+# where = ["app"]

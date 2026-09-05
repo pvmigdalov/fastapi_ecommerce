@@ -1,4 +1,4 @@
-from typing import Any
+from typing import override
 
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -12,6 +12,7 @@ class UserCrudManager(BaseCrudManager[User]):
     model_name = User.__tablename__
     Model = User
 
+    @override
     @classmethod
     async def insert(  # type: ignore[override]
         cls, session: AsyncSession, schema: CreateUserWithHashedPassword

@@ -14,7 +14,7 @@ class UserCrudManager(BaseCrudManager[User]):
 
     @override
     @classmethod
-    async def insert(  # type: ignore[override]
+    async def insert(  # ty: ignore[invalid-method-override]
         cls, session: AsyncSession, schema: CreateUserWithHashedPassword
     ) -> User:
         obj = cls.Model(**schema.model_dump())

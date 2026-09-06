@@ -22,7 +22,7 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/token")
 async def create_user(session: session_dependency, user: CreateUser):
     user_data = user.model_dump()
     password = user_data.pop("password")
-    user_data["hashed_password"] = AuthHelper.bcrypt_context.hash(password)
+    user_data["hashed_password"] = AuthHelper.password_util.hash(password)
 
     return await UserCrudManager.insert(
         session, CreateUserWithHashedPassword(**user_data)

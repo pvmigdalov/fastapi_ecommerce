@@ -45,8 +45,8 @@ class AuthHelper:
     def create_access_token(cls, user: User, expires_delta: timedelta) -> str:
         payload = {
             "sub": user.username,
-            "id": user.id,
-            "user_role": user.user_role,
+            "id": str(user.id),
+            "user_role": user.user_role.value,
             "iat": datetime.now(timezone.utc),
             "exp": datetime.now(timezone.utc) + expires_delta,
         }
@@ -54,7 +54,7 @@ class AuthHelper:
         payload["exp"] = int(payload["exp"].timestamp())
         return jwt.encode(
             payload,
-            auth_settings.jwt_secret_key,
+            key=auth_settings.jwt_secret_key.get_secret_value(),
             algorithm=auth_settings.jwt_algorithm,
         )
 
@@ -62,7 +62,7 @@ class AuthHelper:
     def decode_token(cls, jwt_token: str):
         payload = jwt.decode(
             jwt_token,
-            key=auth_settings.jwt_secret_key,
+            key=auth_settings.jwt_secret_key.get_secret_value(),
             algorithms=[auth_settings.jwt_algorithm],
         )
         return payload

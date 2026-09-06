@@ -5,10 +5,10 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class DBSettings(BaseSettings):
-    database_url: Annotated[str, Field("", alias="DATABASE_URL")]
+    database_url: Annotated[str, Field(..., alias="DATABASE_URL")]
 
     model_config = SettingsConfigDict(
-        env_file="settings/db.env",
+        env_file="app/settings/db.env",
         env_file_encoding="utf-8",
     )
 
@@ -18,7 +18,7 @@ class AuthSettings(BaseSettings):
     jwt_secret_key: Annotated[SecretStr, Field(..., alias="JWT_SECRET_KEY")]
 
     model_config = SettingsConfigDict(
-        env_file="settings/auth.env",
+        env_file="app/settings/auth.env",
         env_file_encoding="utf-8",
     )
 

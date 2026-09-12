@@ -9,16 +9,15 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.crud import UserCrudManager
 from app.database import get_db_session
 from app.models import User
-from app.utils import non_instantiable
 from app.settings import settings
-
-
-auth_settings = settings.auth_settings
+from app.utils import non_instantiable
 
 
 @non_instantiable
 class AuthHelper:
-    password_util = PasswordHash.recommended()
+    password_util: PasswordHash = PasswordHash.recommended()
+    jwt_algorithm: str = settings.auth_settings.jwt_algorithm
+    jwt_secret_key: str = settings.auth_settings.jwt_secret_key.get_secret_value()
 
     @classmethod
     async def authenticate_user(
@@ -54,15 +53,15 @@ class AuthHelper:
         payload["exp"] = int(payload["exp"].timestamp())
         return jwt.encode(
             payload,
-            key=auth_settings.jwt_secret_key.get_secret_value(),
-            algorithm=auth_settings.jwt_algorithm,
+            key=cls.jwt_secret_key,
+            algorithm=cls.jwt_algorithm,
         )
 
     @classmethod
     def decode_token(cls, jwt_token: str):
         payload = jwt.decode(
             jwt_token,
-            key=auth_settings.jwt_secret_key.get_secret_value(),
-            algorithms=[auth_settings.jwt_algorithm],
+            key=cls.jwt_secret_key,
+            algorithms=[cls.jwt_algorithm],
         )
         return payload

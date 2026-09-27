@@ -11,7 +11,7 @@ from app.database import Base
 class Product(Base):
     __tablename__ = "products"
 
-    slug: Mapped[str] = mapped_column(unique=True, index=True)
+    slug: Mapped[str]
     description: Mapped[str | None] = mapped_column(default=None)
     price: Mapped[Decimal] = mapped_column(Numeric(precision=15, scale=2))
     image_url: Mapped[str | None] = mapped_column(default=None)
@@ -21,7 +21,7 @@ class Product(Base):
         UUID(as_uuid=True), ForeignKey("categories.id")
     )
     supplier_id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), ForeignKey("users.id"), nullable=True
+        UUID(as_uuid=True), ForeignKey("users.id")
     )
 
     category: Mapped["Category"] = relationship("Category", back_populates="products")

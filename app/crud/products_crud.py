@@ -1,3 +1,4 @@
+from uuid import UUID
 from typing import Sequence
 
 from slugify import slugify
@@ -42,10 +43,15 @@ class ProductCrudManager(BaseCrudManager[Product]):
         return result.all()
 
     @classmethod
-    async def insert(cls, session: AsyncSession, schema: ProductCreate) -> Product:  # type: ignore[override]
+    async def insert(
+        cls, session: AsyncSession, schema: ProductCreate, supplier_id: UUID
+    ) -> Product:  # type: ignore[override]
         fields = schema.model_dump()
-        obj = cls.Model(slug=slugify(fields["name"]), **fields)
-        session.add(obj)
+
+        product = cls.Model(
+            **fields, slug=slugify(fields["name"]), supplier_id=supplier_id
+        )
+        session.add(product)
         await session.commit()
-        await session.refresh(obj)
-        return obj
+        await session.refresh(product)
+        return product

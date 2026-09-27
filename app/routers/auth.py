@@ -6,8 +6,14 @@ from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 
 from app.auth_utils import AuthHelper
 from app.crud import UserCrudManager
-from app.dependencies import check_user_by_username_or_email, session_dependency
+from app.dependencies import (
+    check_user_by_username_or_email,
+    session_dependency,
+    get_current_user,
+)
+from app.models import User as UserModel
 from app.schemas import CreateUser, CreateUserWithHashedPassword, User
+
 
 router = APIRouter(prefix="/auth", tags=["Auth"])
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/token")
@@ -42,7 +48,5 @@ async def get_token(
 
 
 @router.get("/me", response_model=User)
-async def get_me(
-    session: session_dependency, user_jwt: Annotated[str, Depends(oauth2_scheme)]
-):
-    return await AuthHelper.get_current_user(session, user_jwt)
+async def get_me(user: Annotated[UserModel, Depends(get_current_user)]):
+    return user

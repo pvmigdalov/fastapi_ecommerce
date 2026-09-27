@@ -8,7 +8,7 @@ from pwdlib import PasswordHash
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.crud import UserCrudManager
-from app.models import User
+from app.models import User, UserRole
 from app.settings import settings
 from app.utils import non_instantiable
 
@@ -64,6 +64,15 @@ class AuthHelper:
         return user
 
     @classmethod
+    async def get_current_supplier(cls, session: AsyncSession, user_jwt: str):
+        user = await cls.get_current_user(session, user_jwt)
+        if user.user_role == UserRole.CUSTOMER:
+            raise cls.get_credentals_exception(
+                status_code=status.HTTP_403_FORBIDDEN, detail="You can be supplier"
+            )
+        return user
+
+    @classmethod
     def create_access_token(cls, user: User, expires_delta: timedelta) -> str:
         payload = {
             "sub": user.username,
@@ -91,9 +100,11 @@ class AuthHelper:
 
     @classmethod
     @lru_cache(1)
-    def get_credentals_exception(detail: str = "") -> HTTPException:
+    def get_credentals_exception(
+        cls, *, status_code: int = 401, detail: str = ""
+    ) -> HTTPException:
         return HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
+            status_code=status_code,
             detail=detail,
             headers={"WWW-Authenticate": "Bearer"},
         )

@@ -1,9 +1,11 @@
+from fastapi.security import OAuth2PasswordBearer
 from typing import Annotated, NoReturn
 from uuid import UUID
 
 from fastapi import Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.auth_utils import AuthHelper
 from app.crud import (
     BaseCrudManager,
     CategoryCrudManager,
@@ -14,7 +16,9 @@ from app.database import get_db_session, Base
 from app.schemas import CreateUser
 from app.models import Category, Product, User
 
+
 session_dependency = Annotated[AsyncSession, Depends(get_db_session)]
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/token")
 
 
 class _CheckerExistsByID[T: Base]:
@@ -44,3 +48,28 @@ async def check_user_by_username_or_email(
         raise HTTPException(
             status.HTTP_409_CONFLICT, "User with this username or email already exists"
         )
+
+
+async def get_current_user(
+    session: session_dependency, user_jwt: Annotated[str, Depends(oauth2_scheme)]
+) -> User:
+    return await AuthHelper.get_current_user(session, user_jwt)
+
+
+async def get_current_supplier(
+    session: session_dependency, user_jwt: Annotated[str, Depends(oauth2_scheme)]
+) -> User:
+    return await AuthHelper.get_current_supplier(session, user_jwt)
+
+
+async def get_owned_product(
+    session: session_dependency,
+    user_jwt: Annotated[str, Depends(oauth2_scheme)],
+    product_id: UUID,
+) -> Product:
+    user = await AuthHelper.get_current_supplier(session, user_jwt)
+    product = await check_product_exists(session, product_id)
+    if user.id != product.supplier_id:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Forbidden")
+
+    return product

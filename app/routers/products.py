@@ -1,4 +1,4 @@
-from typing import Sequence
+from typing import Sequence, Annotated
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, status
@@ -8,8 +8,11 @@ from app.dependencies import (
     check_category_exists,
     check_product_exists,
     session_dependency,
+    get_owned_product,
+    get_current_supplier,
 )
-from app.schemas import Product, ProductCreate
+from app.models import Product as ProductModel, User
+from app.schemas import Product, ProductCreate, ProductUpdate
 
 router = APIRouter(prefix="/products", tags=["Products"])
 
@@ -19,10 +22,18 @@ async def get_all_products(session: session_dependency):
     return await ProductCrudManager.select_all_active(session)
 
 
-@router.post("/", status_code=status.HTTP_201_CREATED, response_model=Product)
-async def create_product(session: session_dependency, product: ProductCreate):
+@router.post(
+    "/",
+    status_code=status.HTTP_201_CREATED,
+    response_model=Product,
+)
+async def create_product(
+    session: session_dependency,
+    product: ProductCreate,
+    user: Annotated[User, Depends(get_current_supplier)],
+):
     await check_category_exists(session, product.category_id)
-    return await ProductCrudManager.insert(session, product)
+    return await ProductCrudManager.insert(session, product, user.id)
 
 
 @router.get("/{product_id:uuid}", response_model=Product)
@@ -57,13 +68,25 @@ async def get_product_detail(session: session_dependency, product_slug: str):
     return product
 
 
-@router.put("/{product_id:uuid}", response_model=Product)
+@router.patch("/{product_id:uuid}", response_model=Product)
 async def update_product(
-    session: session_dependency, product_id: UUID, product_update: ProductCreate
+    session: session_dependency,
+    product_id: UUID,
+    product: Annotated[ProductModel, Depends(get_owned_product)],
+    product_update: ProductUpdate,
 ):
-    product = await check_product_exists(session, product_id)
-    await check_category_exists(session, product_update.category_id)
-    await ProductCrudManager.update(session, product_id, **product_update.model_dump())
+    updates = product_update.model_dump(exclude_none=True)
+    if not updates:
+        return product
+
+    category_id = updates.get("category_id", None)
+    if category_id:
+        await check_category_exists(session, category_id)
+
+    for k, v in updates.items():
+        setattr(product, k, v)
+
+    await session.commit()
     await session.refresh(product)
     return product
 

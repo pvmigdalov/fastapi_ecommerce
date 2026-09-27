@@ -1,5 +1,5 @@
 from uuid import UUID
-from typing import Sequence
+from typing import Sequence, Any
 
 from slugify import slugify
 from sqlalchemy import select, union
@@ -11,8 +11,8 @@ from app.schemas import ProductCreate
 
 
 class ProductCrudManager(BaseCrudManager[Product]):
-    model_name = Product.__tablename__
-    Model = Product
+    model_name: str = Product.__tablename__
+    Model: type[Product] = Product
 
     @classmethod
     async def select_all_active(cls, session: AsyncSession) -> Sequence[Product]:
@@ -45,13 +45,29 @@ class ProductCrudManager(BaseCrudManager[Product]):
     @classmethod
     async def insert(
         cls, session: AsyncSession, schema: ProductCreate, supplier_id: UUID
-    ) -> Product:  # type: ignore[override]
+    ) -> Product:  # type: ignore[override]  # ty: ignore[invalid-method-override]
         fields = schema.model_dump()
+        if "name" in fields:
+            fields["slug"] = slugify(fields["name"])
 
-        product = cls.Model(
-            **fields, slug=slugify(fields["name"]), supplier_id=supplier_id
-        )
+        product = cls.Model(**fields, supplier_id=supplier_id)
         session.add(product)
         await session.commit()
         await session.refresh(product)
         return product
+
+    @classmethod
+    async def update(
+        cls,
+        session: AsyncSession,
+        product: Product,
+        **values: Any,
+    ) -> None:  # ty: ignore[invalid-method-override]
+        updates = dict(**values)
+        if "name" in updates:
+            updates["slug"] = slugify(updates["name"])
+
+        for k, v in updates.items():
+            setattr(product, k, v)
+        await session.commit()
+        await session.refresh(product)

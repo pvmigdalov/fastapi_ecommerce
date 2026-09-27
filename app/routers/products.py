@@ -3,10 +3,10 @@ from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, status
 
+
 from app.crud import ProductCrudManager
 from app.dependencies import (
     check_category_exists,
-    check_product_exists,
     session_dependency,
     get_owned_product,
     get_current_supplier,
@@ -71,7 +71,6 @@ async def get_product_detail(session: session_dependency, product_slug: str):
 @router.patch("/{product_id:uuid}", response_model=Product)
 async def update_product(
     session: session_dependency,
-    product_id: UUID,
     product: Annotated[ProductModel, Depends(get_owned_product)],
     product_update: ProductUpdate,
 ):
@@ -83,15 +82,14 @@ async def update_product(
     if category_id:
         await check_category_exists(session, category_id)
 
-    for k, v in updates.items():
-        setattr(product, k, v)
-
-    await session.commit()
-    await session.refresh(product)
+    await ProductCrudManager.update(session, product, **updates)
     return product
 
 
-@router.delete("/{product_id:uuid}", dependencies=[Depends(check_product_exists)])
-async def delete_product(session: session_dependency, product_id: UUID):
-    await ProductCrudManager.update(session, product_id, is_active=False)
+@router.delete("/{product_id:uuid}")
+async def delete_product(
+    session: session_dependency,
+    product: Annotated[ProductModel, Depends(get_owned_product)],
+):
+    await ProductCrudManager.update(session, product, is_active=False)
     return {"transaction": "Product delete is successful"}

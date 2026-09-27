@@ -1,13 +1,13 @@
 from datetime import datetime, timedelta, timezone
-from typing import Annotated
+from functools import lru_cache
+from uuid import UUID
 
 import jwt
-from fastapi import Depends, HTTPException, status
+from fastapi import HTTPException, status
 from pwdlib import PasswordHash
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.crud import UserCrudManager
-from app.database import get_db_session
 from app.models import User
 from app.settings import settings
 from app.utils import non_instantiable
@@ -22,7 +22,7 @@ class AuthHelper:
     @classmethod
     async def authenticate_user(
         cls,
-        session: Annotated[AsyncSession, Depends(get_db_session)],
+        session: AsyncSession,
         username: str,
         password: str,
     ) -> User:
@@ -37,6 +37,29 @@ class AuthHelper:
                 detail="Invalid authentication credentials",
                 headers={"WWW-Authenticate": "Bearer"},
             )
+
+        return user
+
+    @classmethod
+    async def get_current_user(
+        cls,
+        session: AsyncSession,
+        user_jwt: str,
+    ) -> User:
+        try:
+            payload = cls.decode_token(user_jwt)
+        except jwt.ExpiredSignatureError:
+            raise cls.get_credentals_exception(detail="Token has expired")
+        except jwt.PyJWTError:
+            raise cls.get_credentals_exception(detail="Could not validate credentials")
+
+        user_id = payload.get("id")
+        if not user_id:
+            raise cls.get_credentals_exception(detail="Could not validate credentials")
+
+        user = await UserCrudManager.select_by_id(session, UUID(user_id))
+        if not user or not user.is_active:
+            raise cls.get_credentals_exception(detail="Could not validate credentials")
 
         return user
 
@@ -65,3 +88,12 @@ class AuthHelper:
             algorithms=[cls.jwt_algorithm],
         )
         return payload
+
+    @classmethod
+    @lru_cache(1)
+    def get_credentals_exception(detail: str = "") -> HTTPException:
+        return HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail=detail,
+            headers={"WWW-Authenticate": "Bearer"},
+        )

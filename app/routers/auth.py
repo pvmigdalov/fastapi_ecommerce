@@ -41,6 +41,8 @@ async def get_token(
     return {"access_token": token, "token_type": "bearer"}
 
 
-@router.get("/me")
-async def get_me(user_jwt: Annotated[str, Depends(oauth2_scheme)]):
-    return AuthHelper.decode_token(user_jwt)
+@router.get("/me", response_model=User)
+async def get_me(
+    session: session_dependency, user_jwt: Annotated[str, Depends(oauth2_scheme)]
+):
+    return await AuthHelper.get_current_user(session, user_jwt)

@@ -31,6 +31,7 @@ class ProductCreate(BaseModel):
     image_url: Annotated[AnyHttpUrl | None, Field(None, description="Image's url")]
     stock: Annotated[int, Field(0, description="Product's stock")]
     category_id: Annotated[UUID4, Field(..., description="Category uuid v4")]
+    model_config = ConfigDict(extra="forbid")
 
 
 class ProductUpdate(BaseModel):
@@ -52,7 +53,6 @@ class ProductUpdate(BaseModel):
     image_url: Annotated[AnyHttpUrl | None, Field(None, description="Image's url")]
     stock: Annotated[int | None, Field(None, description="Product's stock")]
     category_id: Annotated[UUID4 | None, Field(None, description="Category uuid v4")]
-
     model_config = ConfigDict(extra="forbid")
 
 
@@ -66,7 +66,6 @@ class Product(ProductCreate):
     slug: Annotated[str, Field(..., description="Product's slug")]
     rating: Annotated[float, Field(0, description="Product's rating")]
     supplier_id: Annotated[UUID4, Field(..., description="Supplier's uuid v4")]
-
     model_config = ConfigDict(from_attributes=True)
 
 
@@ -81,6 +80,7 @@ class CreateCategory(BaseModel):
     parent_id: Annotated[
         UUID4 | None, Field(None, description="Category parent UUID4 v4")
     ]
+    model_config = ConfigDict(extra="forbid")
 
 
 class Category(CreateCategory):
@@ -91,7 +91,6 @@ class Category(CreateCategory):
     id: Annotated[UUID4, Field(..., description="Category uuid v4")]
     is_active: Annotated[bool, Field(..., description="Activity status")]
     slug: Annotated[str, Field(..., description="Category slug")]
-
     model_config = ConfigDict(from_attributes=True)
 
 
@@ -105,6 +104,7 @@ class CreateUser(BaseModel):
     email: EmailStr
     password: str
     user_role: UserRole = UserRole.CUSTOMER
+    model_config = ConfigDict(extra="forbid")
 
 
 class CreateUserWithHashedPassword(BaseModel):
@@ -117,6 +117,7 @@ class CreateUserWithHashedPassword(BaseModel):
     email: EmailStr
     hashed_password: str
     user_role: UserRole
+    model_config = ConfigDict(extra="forbid")
 
 
 class User(BaseModel):
@@ -129,5 +130,4 @@ class User(BaseModel):
     username: str
     email: EmailStr
     user_role: UserRole
-
     model_config = ConfigDict(from_attributes=True)

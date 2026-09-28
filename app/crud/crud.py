@@ -1,3 +1,5 @@
+from abc import ABC, abstractmethod
+from collections.abc import Mapping
 from typing import Any, Sequence
 from uuid import UUID
 
@@ -51,3 +53,30 @@ class BaseCrudManager[T: Base]:
         query = update(cls.Model).where(cls.Model.id == _id).values(**update_values)
         await session.execute(query)
         await session.commit()
+
+
+class NewBaseCrudManager[T: Base](ABC):
+    Model: type[Base]
+
+    @classmethod
+    @abstractmethod
+    async def add(cls, session: AsyncSession, obj: T) -> T: ...
+
+    @classmethod
+    @abstractmethod
+    async def select(cls, session: AsyncSession, **conditions: Any): ...
+
+    @classmethod
+    @abstractmethod
+    async def update(
+        cls,
+        session: AsyncSession,
+        obj: T,
+        conditions: Mapping | None = None,
+        **values: Any,
+    ): ...
+
+    @property
+    @classmethod
+    def model_name(cls) -> str:
+        return cls.Model.__tablename__

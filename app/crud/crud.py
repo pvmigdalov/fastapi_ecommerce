@@ -1,13 +1,13 @@
 from abc import ABC, abstractmethod
-from collections.abc import Mapping
 from typing import Any, Sequence
 from uuid import UUID
 
 from slugify import slugify
-from sqlalchemy import insert, select, update
+from sqlalchemy import insert, select, true, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.database import Base
+from app.utils import classproperty
 
 
 class BaseCrudManager[T: Base]:
@@ -55,16 +55,20 @@ class BaseCrudManager[T: Base]:
         await session.commit()
 
 
-class NewBaseCrudManager[T: Base](ABC):
-    Model: type[Base]
+class AbstractCrudManager[T: Base](ABC):
+    Model: type[T]
 
     @classmethod
     @abstractmethod
-    async def add(cls, session: AsyncSession, obj: T) -> T: ...
+    async def add(cls, session: AsyncSession, obj: T) -> None: ...
 
     @classmethod
     @abstractmethod
-    async def select(cls, session: AsyncSession, **conditions: Any): ...
+    async def select(cls, session: AsyncSession, **conditions: Any) -> Sequence[T]: ...
+
+    @classmethod
+    @abstractmethod
+    async def select_by_id(cls, session: AsyncSession, _id: UUID) -> T | None: ...
 
     @classmethod
     @abstractmethod
@@ -72,11 +76,42 @@ class NewBaseCrudManager[T: Base](ABC):
         cls,
         session: AsyncSession,
         obj: T,
-        conditions: Mapping | None = None,
         **values: Any,
-    ): ...
+    ) -> None: ...
 
-    @property
+
+class NewBaseCrudManager[T: Base](AbstractCrudManager[T]):
+    Model: type[T]
+
     @classmethod
+    async def add(cls, session: AsyncSession, obj: T) -> None:
+        session.add(obj)
+        await session.commit()
+        await session.refresh(obj)
+
+    @classmethod
+    async def select(cls, session: AsyncSession, **conditions: Any) -> Sequence[T]:
+        conditions["is_active"] = True
+        stmt = select(cls.Model).where(**conditions)
+        res = await session.scalars(stmt)
+        return res.all()
+
+    @classmethod
+    async def select_by_id(cls, session: AsyncSession, _id: UUID) -> T | None:
+        stmt = select(cls.Model).where(
+            cls.Model.id == _id, cls.Model.is_active.is_(true())
+        )
+        return await session.scalar(stmt)
+
+    @classmethod
+    async def update(cls, session: AsyncSession, obj: T, **values: Any) -> None:
+        for k, v in values.items():
+            if hasattr(obj, k):
+                setattr(obj, k, v)
+
+        await session.commit()
+        await session.refresh(obj)
+
+    @classproperty
     def model_name(cls) -> str:
         return cls.Model.__tablename__

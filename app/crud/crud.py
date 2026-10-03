@@ -90,9 +90,13 @@ class NewBaseCrudManager[T: Base](AbstractCrudManager[T]):
         await session.refresh(obj)
 
     @classmethod
-    async def select(cls, session: AsyncSession, **conditions: Any) -> Sequence[T]:
-        conditions["is_active"] = True
-        stmt = select(cls.Model).where(**conditions)
+    async def select(
+        cls, session: AsyncSession, is_active: bool = True, **conditions: Any
+    ) -> Sequence[T]:
+        stmt = select(cls.Model).where(cls.Model.is_active == is_active)
+        for column_name, value in conditions.items():
+            if column := getattr(cls.Model, column_name, None):
+                stmt = stmt.where(column == value)
         res = await session.scalars(stmt)
         return res.all()
 
@@ -108,7 +112,6 @@ class NewBaseCrudManager[T: Base](AbstractCrudManager[T]):
         for k, v in values.items():
             if hasattr(obj, k):
                 setattr(obj, k, v)
-
         await session.commit()
         await session.refresh(obj)
 

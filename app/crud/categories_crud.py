@@ -15,9 +15,7 @@ class CategoryCrudManager(BaseCrudManager[Category]):
     async def get_hierarchy_ids(
         cls, session: AsyncSession, slug: str
     ) -> Sequence[UUID]:
-        category_by_slug = select(Category.id, Category.parent_id).where(
-            Category.slug == slug
-        )
+        category_by_slug = select(Category.id).where(Category.slug == slug)
 
         recursive_alias = category_by_slug.cte(name="category_tree", recursive=True)
         children_query = select(Category.id).join(
@@ -25,6 +23,6 @@ class CategoryCrudManager(BaseCrudManager[Category]):
         )
 
         tree_query = union_all(category_by_slug, children_query)
-        res = await session.scalars(tree_query)
+        result = await session.scalars(tree_query)
 
-        return res.all()
+        return result.all()

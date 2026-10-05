@@ -43,7 +43,9 @@ check_user_exists = _CheckerExistsByID[User](UserCrudManager)
 async def check_user_by_username_or_email(
     session: session_dependency, user: CreateUser
 ) -> NoReturn | None:
-    checked_user = await UserCrudManager.select_by_username_or_email(session, user)
+    checked_user = await UserCrudManager.select_by_username_or_email(
+        session, user.username, user.email
+    )
     if checked_user is not None:
         raise HTTPException(
             status.HTTP_409_CONFLICT, "User with this username or email already exists"

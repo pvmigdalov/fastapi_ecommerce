@@ -1,9 +1,11 @@
-from slugify import slugify
+from collections.abc import Sequence
+from uuid import UUID
+
+from sqlalchemy import select, union_all
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.crud.crud import BaseCrudManager
 from app.models import Category
-from app.schemas import CreateCategory
 
 
 class CategoryCrudManager(BaseCrudManager[Category]):
@@ -11,10 +13,18 @@ class CategoryCrudManager(BaseCrudManager[Category]):
     Model = Category
 
     @classmethod
-    async def insert(cls, session: AsyncSession, schema: CreateCategory) -> Category:  # type: ignore[override]  # ty: ignore[invalid-method-override]
-        fields = schema.model_dump()
-        obj = cls.Model(slug=slugify(fields["name"]), **fields)
-        session.add(obj)
-        await session.commit()
-        await session.refresh(obj)
-        return obj
+    async def get_hierarchy_ids(
+        cls, session: AsyncSession, slug: str
+    ) -> Sequence[UUID]:
+        category_by_slug = select(Category.id, Category.parent_id).where(
+            Category.slug == slug
+        )
+
+        recursive_alias = category_by_slug.cte(name="category_tree", recursive=True)
+        children_query = select(Category.id).join(
+            recursive_alias, Category.parent_id == recursive_alias.c.id
+        )
+        tree_query = union_all(category_by_slug, children_query)
+        res = await session.scalars(tree_query)
+
+        return res.all()

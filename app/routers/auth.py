@@ -12,7 +12,7 @@ from app.dependencies import (
     get_current_user,
 )
 from app.models import User as UserModel
-from app.schemas import CreateUser, CreateUserWithHashedPassword, User
+from app.schemas import CreateUser, User
 
 
 router = APIRouter(prefix="/auth", tags=["Auth"])
@@ -30,9 +30,9 @@ async def create_user(session: session_dependency, user: CreateUser):
     password = user_data.pop("password")
     user_data["hashed_password"] = AuthHelper.password_util.hash(password)
 
-    return await UserCrudManager.insert(
-        session, CreateUserWithHashedPassword(**user_data)
-    )
+    new_user = UserModel(**user_data)
+    await UserCrudManager.add(session, new_user)
+    return new_user
 
 
 @router.post("/token")

@@ -26,7 +26,7 @@ class AuthHelper:
         username: str,
         password: str,
     ) -> User:
-        user = await UserCrudManager.select_by_condition(session, username=username)
+        user = await UserCrudManager.select_by_username(session, username)
         if (
             not user
             or not cls.password_util.verify(password, user.hashed_password)

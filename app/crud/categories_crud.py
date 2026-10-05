@@ -1,7 +1,7 @@
 from collections.abc import Sequence
 from uuid import UUID
 
-from sqlalchemy import select, union_all
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.crud.crud import BaseCrudManager
@@ -21,12 +21,11 @@ class CategoryCrudManager(BaseCrudManager[Category]):
     ) -> Sequence[UUID]:
         category_by_slug = select(Category.id).where(Category.slug == slug)
 
-        recursive_alias = category_by_slug.cte(name="category_tree", recursive=True)
-        children_query = select(Category.id).join(
-            recursive_alias, Category.parent_id == recursive_alias.c.id
+        categories_tree = category_by_slug.cte(name="categories_tree", recursive=True)
+        children = select(Category.id).join(
+            categories_tree, Category.parent_id == categories_tree.c.id
         )
-
-        tree_query = union_all(category_by_slug, children_query)
-        result = await session.scalars(tree_query)
+        categories_tree = categories_tree.union_all(children)
+        result = await session.scalars(select(categories_tree.c.id))
 
         return result.all()

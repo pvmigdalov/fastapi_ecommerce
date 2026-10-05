@@ -12,6 +12,10 @@ class CategoryCrudManager(BaseCrudManager[Category]):
     Model = Category
 
     @classmethod
+    async def select_all_active(cls, session: AsyncSession) -> Sequence[Category]:
+        return await cls.select(session)
+
+    @classmethod
     async def get_hierarchy_ids(
         cls, session: AsyncSession, slug: str
     ) -> Sequence[UUID]:

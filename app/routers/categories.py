@@ -1,10 +1,11 @@
-from typing import Sequence
-from uuid import UUID
+from typing import Sequence, Annotated
 
 from fastapi import APIRouter, Depends, status
+from slugify import slugify
 
 from app.crud import CategoryCrudManager
 from app.dependencies import check_category_exists, session_dependency
+from app.models import Category as CategoryModel
 from app.schemas import Category, CreateCategory
 
 router = APIRouter(prefix="/categories", tags=["Categories"])
@@ -19,22 +20,42 @@ async def get_all_categories(session: session_dependency):
 async def create_category(session: session_dependency, category: CreateCategory):
     if category.parent_id:
         await check_category_exists(session, category.parent_id)
-    return await CategoryCrudManager.insert(session, category)
+
+    category_data = category.model_dump()
+    new_category = CategoryModel(
+        **category_data,
+        slug=slugify(category_data["name"]),
+    )
+    await CategoryCrudManager.add(session, new_category)
+
+    return new_category
 
 
-@router.put("/", response_model=Category)
+@router.put("/{id:uuid}", response_model=Category)
 async def update_category(
-    session: session_dependency, id: UUID, category_update: CreateCategory
+    session: session_dependency,
+    category: Annotated[CategoryModel, Depends(check_category_exists)],
+    category_update: CreateCategory,
 ):
-    category = await check_category_exists(session, id)
+    updates = category_update.model_dump(exclude_none=True)
+    if not updates:
+        return category
+
     if category_update.parent_id:
         await check_category_exists(session, category_update.parent_id)
-    await CategoryCrudManager.update(session, id, **category_update.model_dump())
+
+    if "name" in updates:
+        updates["slug"] = slugify(updates["name"])
+
+    await CategoryCrudManager.update(session, category, **updates)
     await session.refresh(category)
     return category
 
 
-@router.delete("/", dependencies=[Depends(check_category_exists)])
-async def delete_category(session: session_dependency, id: UUID):
-    await CategoryCrudManager.update(session, id, is_active=False)
+@router.delete("/{id:uuid}")
+async def delete_category(
+    session: session_dependency,
+    category: Annotated[CategoryModel, Depends(check_category_exists)],
+):
+    await CategoryCrudManager.delete(session, category)
     return {"transaction": "Category delete is successful"}

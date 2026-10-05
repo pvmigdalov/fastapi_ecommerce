@@ -104,5 +104,5 @@ async def delete_product(
     session: session_dependency,
     product: Annotated[ProductModel, Depends(get_owned_product)],
 ):
-    await ProductCrudManager.update(session, product, is_active=False)
+    await ProductCrudManager.delete(session, product)
     return {"transaction": "Product delete is successful"}

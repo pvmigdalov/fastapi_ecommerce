@@ -33,6 +33,10 @@ class AbstractCrudManager[T: Base](ABC):
         **values: Any,
     ) -> None: ...
 
+    @classmethod
+    @abstractmethod
+    async def delete(cls, session: AsyncSession, obj: T) -> None: ...
+
 
 class BaseCrudManager[T: Base](AbstractCrudManager[T]):
     Model: type[T]
@@ -68,6 +72,10 @@ class BaseCrudManager[T: Base](AbstractCrudManager[T]):
                 setattr(obj, k, v)
         await session.commit()
         await session.refresh(obj)
+
+    @classmethod
+    async def delete(cls, session: AsyncSession, obj: T) -> None:
+        await cls.update(session, obj, is_active=False)
 
     @classproperty
     def model_name(cls) -> str:

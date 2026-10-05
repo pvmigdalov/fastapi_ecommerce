@@ -4,6 +4,7 @@
 .vscode/
 __pycache__/
 .zed/
+.pytest_cache/
 ecommerce.db*
 db.env
 auth.env

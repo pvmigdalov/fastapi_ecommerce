@@ -2,6 +2,7 @@ from typing import Sequence, Annotated
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, status
+from slugify import slugify
 
 
 from app.crud import ProductCrudManager
@@ -33,7 +34,16 @@ async def create_product(
     user: Annotated[User, Depends(get_current_supplier)],
 ):
     await check_category_exists(session, product.category_id)
-    return await ProductCrudManager.insert(session, product, user.id)
+
+    product_data = product.model_dump()
+    new_product = ProductModel(
+        **product_data,
+        slug=slugify(product_data["name"]),
+        supplier_id=user.id,
+    )
+    await ProductCrudManager.add(session, new_product)
+
+    return new_product
 
 
 @router.get("/{product_id:uuid}", response_model=Product)
@@ -60,7 +70,7 @@ async def get_products_by_category(session: session_dependency, category_slug: s
 
 @router.get("/detail/{product_slug}", response_model=Product)
 async def get_product_detail(session: session_dependency, product_slug: str):
-    product = await ProductCrudManager.select_by_condition(session, slug=product_slug)
+    product = await ProductCrudManager.select(session, slug=product_slug)
     if not product:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail="Product not found"
@@ -81,6 +91,9 @@ async def update_product(
     category_id = updates.get("category_id", None)
     if category_id:
         await check_category_exists(session, category_id)
+
+    if "name" in updates:
+        updates["slug"] = slugify(updates["name"])
 
     await ProductCrudManager.update(session, product, **updates)
     return product

@@ -9,7 +9,6 @@ from app.models import Category
 
 
 class CategoryCrudManager(BaseCrudManager[Category]):
-    model_name = Category.__tablename__
     Model = Category
 
     @classmethod
@@ -24,6 +23,7 @@ class CategoryCrudManager(BaseCrudManager[Category]):
         children_query = select(Category.id).join(
             recursive_alias, Category.parent_id == recursive_alias.c.id
         )
+
         tree_query = union_all(category_by_slug, children_query)
         res = await session.scalars(tree_query)
 

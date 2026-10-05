@@ -2,44 +2,34 @@ from uuid import UUID
 from typing import Sequence, Any
 
 from slugify import slugify
-from sqlalchemy import select, union
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.crud.crud import BaseCrudManager
-from app.models import Category, Product
+from app.crud import BaseCrudManager
+from app.crud import CategoryCrudManager
+from app.models import Product
 from app.schemas import ProductCreate
 
 
 class ProductCrudManager(BaseCrudManager[Product]):
-    model_name: str = Product.__tablename__
-    Model: type[Product] = Product
+    Model = Product
 
     @classmethod
     async def select_all_active(cls, session: AsyncSession) -> Sequence[Product]:
-        query = select(cls.Model).where(cls.Model.is_active, cls.Model.stock > 0)
-        result = await session.scalars(query)
-        return result.all()
+        return await cls.select(session)
 
     @classmethod
     async def select_products_by_category(
         cls, session: AsyncSession, category_slug: str
     ) -> Sequence[Product]:
-        category_by_slug = (
-            select(Category.id).where(Category.slug == category_slug).cte()
+        category_hierarchy_ids = await CategoryCrudManager.get_hierarchy_ids(
+            session, category_slug
         )
-
-        category_hierarchy = union(
-            select(category_by_slug.c.id),
-            select(Category.id).join(
-                category_by_slug, Category.parent_id == category_by_slug.c.id
-            ),
-        ).cte()
-
-        query = select(cls.Model).join(
-            category_hierarchy, cls.Model.category_id == category_hierarchy.c.id
+        stmt = select(cls.Model).where(
+            cls.Model.category_id.in_(category_hierarchy_ids)
         )
+        result = await session.scalars(stmt)
 
-        result = await session.scalars(query)
         return result.all()
 
     @classmethod

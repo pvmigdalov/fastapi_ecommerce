@@ -1,21 +1,23 @@
 from .dependencies import (
     check_category_exists,
     check_product_exists,
-    check_user_exists,
     check_user_by_username_or_email,
-    session_dependency,
-    get_current_user,
+    check_user_exists,
+    get_current_admin,
     get_current_supplier,
+    get_current_user,
     get_owned_product,
+    session_dependency,
 )
 
 __all__ = (
     "check_category_exists",
     "check_product_exists",
-    "check_user_exists",
     "check_user_by_username_or_email",
-    "session_dependency",
-    "get_current_user",
+    "check_user_exists",
+    "get_current_admin",
     "get_current_supplier",
+    "get_current_user",
     "get_owned_product",
+    "session_dependency",
 )

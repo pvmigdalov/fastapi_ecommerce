@@ -4,7 +4,7 @@ from uuid import UUID
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.crud.crud import BaseCrudManager
+from app.crud import BaseCrudManager
 from app.models import Category
 
 

@@ -1,10 +1,14 @@
-from typing import Sequence, Annotated
+from typing import Annotated, Sequence
 
 from fastapi import APIRouter, Depends, status
 from slugify import slugify
 
 from app.crud import CategoryCrudManager
-from app.dependencies import check_category_exists, session_dependency
+from app.dependencies import (
+    check_category_exists,
+    get_current_admin,
+    session_dependency,
+)
 from app.models import Category as CategoryModel
 from app.schemas import Category, CreateCategory
 
@@ -16,7 +20,12 @@ async def get_all_categories(session: session_dependency):
     return await CategoryCrudManager.select_all_active(session)
 
 
-@router.post("/", status_code=status.HTTP_201_CREATED, response_model=Category)
+@router.post(
+    "/",
+    status_code=status.HTTP_201_CREATED,
+    response_model=Category,
+    dependencies=[Depends(get_current_admin)],
+)
 async def create_category(session: session_dependency, category: CreateCategory):
     if category.parent_id:
         await check_category_exists(session, category.parent_id)
@@ -31,7 +40,11 @@ async def create_category(session: session_dependency, category: CreateCategory)
     return new_category
 
 
-@router.put("/{id:uuid}", response_model=Category)
+@router.put(
+    "/{id:uuid}",
+    response_model=Category,
+    dependencies=[Depends(get_current_admin)],
+)
 async def update_category(
     session: session_dependency,
     category: Annotated[CategoryModel, Depends(check_category_exists)],
@@ -52,10 +65,10 @@ async def update_category(
     return category
 
 
-@router.delete("/{id:uuid}")
+@router.delete("/{id:uuid}", dependencies=[Depends(get_current_admin)])
 async def delete_category(
     session: session_dependency,
     category: Annotated[CategoryModel, Depends(check_category_exists)],
-):
+) -> dict:
     await CategoryCrudManager.delete(session, category)
     return {"transaction": "Category delete is successful"}

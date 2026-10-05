@@ -18,6 +18,7 @@ class AuthHelper:
     password_util: PasswordHash = PasswordHash.recommended()
     jwt_algorithm: str = settings.auth_settings.jwt_algorithm
     jwt_secret_key: str = settings.auth_settings.jwt_secret_key.get_secret_value()
+    jwt_expires_days: int = settings.auth_settings.jwt_expires_days
 
     @classmethod
     async def authenticate_user(
@@ -82,13 +83,13 @@ class AuthHelper:
         return user
 
     @classmethod
-    def create_access_token(cls, user: User, expires_delta: timedelta) -> str:
+    def create_access_token(cls, user: User) -> str:
         payload = {
             "sub": user.username,
             "id": str(user.id),
             "user_role": user.user_role.value,
             "iat": datetime.now(timezone.utc),
-            "exp": datetime.now(timezone.utc) + expires_delta,
+            "exp": datetime.now(timezone.utc) + timedelta(days=cls.jwt_expires_days),
         }
 
         payload["exp"] = int(payload["exp"].timestamp())

@@ -1,4 +1,3 @@
-from datetime import timedelta
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, status
@@ -43,7 +42,7 @@ async def get_token(
     user = await AuthHelper.authenticate_user(
         session, form_data.username, form_data.password
     )
-    token = AuthHelper.create_access_token(user, timedelta(days=1))
+    token = AuthHelper.create_access_token(user)
     return {"access_token": token, "token_type": "bearer"}
 
 

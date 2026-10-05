@@ -16,6 +16,7 @@ class DBSettings(BaseSettings):
 class AuthSettings(BaseSettings):
     jwt_algorithm: Annotated[str, Field(default="HS256", alias="JWT_ALGORITHM")]
     jwt_secret_key: Annotated[SecretStr, Field(..., alias="JWT_SECRET_KEY")]
+    jwt_expires_days: Annotated[int, Field(..., alias="JWT_EXPIRES_DAYS")]
 
     model_config = SettingsConfigDict(
         env_file="app/settings/auth.env",

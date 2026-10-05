@@ -1,6 +1,6 @@
-.PHONY: app-up
-app-up:
-	docker compose up app -d
+.PHONY: app-local-up
+app-local-up:
+	uv run python -m app.main	
 
 .PHONY: pg-up
 pg-up:

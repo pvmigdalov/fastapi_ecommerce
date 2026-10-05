@@ -64,11 +64,20 @@ class AuthHelper:
         return user
 
     @classmethod
-    async def get_current_supplier(cls, session: AsyncSession, user_jwt: str):
+    async def get_current_supplier(cls, session: AsyncSession, user_jwt: str) -> User:
         user = await cls.get_current_user(session, user_jwt)
         if user.user_role == UserRole.CUSTOMER:
             raise cls.get_credentals_exception(
                 status_code=status.HTTP_403_FORBIDDEN, detail="You can be supplier"
+            )
+        return user
+
+    @classmethod
+    async def get_current_admin(cls, session: AsyncSession, user_jwt: str) -> User:
+        user = await cls.get_current_user(session, user_jwt)
+        if user.user_role != UserRole.ADMIN:
+            raise cls.get_credentals_exception(
+                status_code=status.HTTP_403_FORBIDDEN, detail="Access denied"
             )
         return user
 

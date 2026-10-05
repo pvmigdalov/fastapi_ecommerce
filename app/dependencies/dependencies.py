@@ -64,6 +64,12 @@ async def get_current_supplier(
     return await AuthHelper.get_current_supplier(session, user_jwt)
 
 
+async def get_current_admin(
+    session: session_dependency, user_jwt: Annotated[str, Depends(oauth2_scheme)]
+) -> User:
+    return await AuthHelper.get_current_admin(session, user_jwt)
+
+
 async def get_owned_product(
     session: session_dependency,
     user_jwt: Annotated[str, Depends(oauth2_scheme)],

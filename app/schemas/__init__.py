@@ -1,6 +1,6 @@
 from .categories import Category, CreateCategory
 from .products import Product, ProductCreate, ProductUpdate
-from .users import User, UserRole
+from .users import CreateUser, User, UserRole
 
 
 __all__ = (
@@ -9,6 +9,7 @@ __all__ = (
     "Product",
     "ProductCreate",
     "ProductUpdate",
+    "CreateUser",
     "User",
     "UserRole",
 )

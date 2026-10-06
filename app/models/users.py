@@ -15,6 +15,7 @@ class UserRole(enum.Enum):
 class User(Base):
     __tablename__ = "users"
 
+    name: Mapped[str]
     username: Mapped[str] = mapped_column(unique=True)
     email: Mapped[str] = mapped_column(unique=True)
     hashed_password: Mapped[str] = mapped_column()

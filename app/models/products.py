@@ -11,6 +11,7 @@ from app.database import Base
 class Product(Base):
     __tablename__ = "products"
 
+    name: Mapped[str]
     slug: Mapped[str]
     description: Mapped[str | None] = mapped_column(default=None)
     price: Mapped[Decimal] = mapped_column(Numeric(precision=15, scale=2))

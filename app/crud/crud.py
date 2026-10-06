@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+from collections.abc import Mapping
 from typing import Any, Sequence
 from uuid import UUID
 
@@ -30,7 +31,7 @@ class AbstractCrudManager[T: Base](ABC):
         cls,
         session: AsyncSession,
         obj: T,
-        **values: Any,
+        values: Mapping[str, Any],
     ) -> None: ...
 
     @classmethod
@@ -42,10 +43,11 @@ class BaseCrudManager[T: Base](AbstractCrudManager[T]):
     Model: type[T]
 
     @classmethod
-    async def add(cls, session: AsyncSession, obj: T) -> None:
+    async def add(cls, session: AsyncSession, obj: T, commit: bool = True) -> None:
         session.add(obj)
-        await session.commit()
-        await session.refresh(obj)
+        if commit:
+            await session.commit()
+            await session.refresh(obj)
 
     @classmethod
     async def select(
@@ -66,16 +68,23 @@ class BaseCrudManager[T: Base](AbstractCrudManager[T]):
         return await session.scalar(stmt)
 
     @classmethod
-    async def update(cls, session: AsyncSession, obj: T, **values: Any) -> None:
+    async def update(
+        cls,
+        session: AsyncSession,
+        obj: T,
+        values: Mapping[str, Any],
+        commit: bool = True,
+    ) -> None:
         for k, v in values.items():
             if hasattr(obj, k):
                 setattr(obj, k, v)
-        await session.commit()
-        await session.refresh(obj)
+        if commit:
+            await session.commit()
+            await session.refresh(obj)
 
     @classmethod
     async def delete(cls, session: AsyncSession, obj: T) -> None:
-        await cls.update(session, obj, is_active=False)
+        await cls.update(session, obj, {"is_active": False})
 
     @classproperty
     def model_name(cls) -> str:

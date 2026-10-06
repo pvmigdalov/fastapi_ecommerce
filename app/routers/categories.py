@@ -36,7 +36,6 @@ async def create_category(session: session_dependency, category: CreateCategory)
         slug=slugify(category_data["name"]),
     )
     await CategoryCrudManager.add(session, new_category)
-
     return new_category
 
 
@@ -60,8 +59,7 @@ async def update_category(
     if "name" in updates:
         updates["slug"] = slugify(updates["name"])
 
-    await CategoryCrudManager.update(session, category, **updates)
-    await session.refresh(category)
+    await CategoryCrudManager.update(session, category, updates)
     return category
 
 

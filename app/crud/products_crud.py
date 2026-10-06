@@ -3,8 +3,8 @@ from typing import Sequence, TYPE_CHECKING
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.crud import BaseCrudManager
 from app.models import Product
+from .crud import BaseCrudManager
 
 
 if TYPE_CHECKING:

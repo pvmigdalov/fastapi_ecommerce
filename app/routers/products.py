@@ -96,7 +96,7 @@ async def update_product(
     if "name" in updates:
         updates["slug"] = slugify(updates["name"])
 
-    await ProductCrudManager.update(session, product, **updates)
+    await ProductCrudManager.update(session, product, updates)
     return product
 
 

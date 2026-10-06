@@ -1,8 +1,8 @@
 from sqlalchemy import select, true
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.crud.crud import BaseCrudManager
 from app.models import User
+from .crud import BaseCrudManager
 
 
 class UserCrudManager(BaseCrudManager[User]):

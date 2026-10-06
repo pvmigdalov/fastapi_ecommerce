@@ -7,6 +7,7 @@ from .auth import (
 from .db import session_dependency
 from .existence_checks import (
     check_category_exists,
+    check_category_exists_by_id,
     check_product_exists,
     check_user_by_username_or_email,
     check_user_exists,
@@ -14,6 +15,7 @@ from .existence_checks import (
 
 __all__ = (
     "check_category_exists",
+    "check_category_exists_by_id",
     "check_product_exists",
     "check_user_by_username_or_email",
     "check_user_exists",

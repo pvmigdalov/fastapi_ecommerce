@@ -1,19 +1,20 @@
-from typing import Sequence, Annotated
+from typing import Annotated, Sequence
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from slugify import slugify
 
-
-from app.crud import ProductCrudManager
+from app.crud import CategoryCrudManager, ProductCrudManager
 from app.dependencies import (
     check_category_exists,
-    session_dependency,
-    get_owned_product,
     get_current_supplier,
+    get_owned_product,
+    session_dependency,
 )
-from app.models import Product as ProductModel, User
+from app.models import Product as ProductModel
+from app.models import User
 from app.schemas import Product, ProductCreate, ProductUpdate
+
 
 router = APIRouter(prefix="/products", tags=["Products"])
 
@@ -59,7 +60,7 @@ async def get_product(session: session_dependency, product_id: UUID):
 @router.get("/category/{category_slug:str}", response_model=Sequence[Product])
 async def get_products_by_category(session: session_dependency, category_slug: str):
     products = await ProductCrudManager.select_products_by_category(
-        session, category_slug
+        session, category_slug, CategoryCrudManager
     )
     if not products:
         raise HTTPException(

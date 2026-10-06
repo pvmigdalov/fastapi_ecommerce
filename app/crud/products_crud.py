@@ -1,11 +1,14 @@
-from typing import Sequence
+from typing import Sequence, TYPE_CHECKING
 
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.crud import BaseCrudManager
-from app.crud import CategoryCrudManager
 from app.models import Product
+
+
+if TYPE_CHECKING:
+    from app.crud import CategoryCrudManager
 
 
 class ProductCrudManager(BaseCrudManager[Product]):
@@ -17,9 +20,12 @@ class ProductCrudManager(BaseCrudManager[Product]):
 
     @classmethod
     async def select_products_by_category(
-        cls, session: AsyncSession, category_slug: str
+        cls,
+        session: AsyncSession,
+        category_slug: str,
+        CategoryCM: type["CategoryCrudManager"],
     ) -> Sequence[Product]:
-        category_hierarchy_ids = await CategoryCrudManager.get_hierarchy_ids(
+        category_hierarchy_ids = await CategoryCM.get_hierarchy_ids(
             session, category_slug
         )
         stmt = select(cls.Model).where(

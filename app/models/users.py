@@ -8,7 +8,7 @@ from app.database import Base
 
 
 if TYPE_CHECKING:
-    from app.models import Product
+    from app.models import Product, Review
 
 
 class UserRole(enum.Enum):
@@ -31,6 +31,5 @@ class User(Base):
         nullable=False,
     )
 
-    products: Mapped[list["Product"]] = relationship(
-        "Product", uselist=True, back_populates="user"
-    )
+    products: Mapped[list["Product"]] = relationship("Product", back_populates="user")
+    reviews: Mapped[list["Review"]] = relationship("Review", back_populates="user")

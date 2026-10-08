@@ -8,9 +8,8 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.database import Base
 
-
 if TYPE_CHECKING:
-    from app.models import Category, User
+    from app.models import Category, Review, User
 
 
 class Product(Base):
@@ -32,3 +31,4 @@ class Product(Base):
 
     category: Mapped["Category"] = relationship("Category", back_populates="products")
     user: Mapped["User"] = relationship("User", back_populates="products")
+    reviews: Mapped[list["Review"]] = relationship("Review", back_populates="product")

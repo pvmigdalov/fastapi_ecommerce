@@ -5,7 +5,7 @@ from slugify import slugify
 
 from app.crud import CategoryCrudManager
 from app.dependencies import (
-    check_category_exists_by_id,
+    check_category_exists,
     get_current_admin,
     session_dependency,
 )
@@ -28,7 +28,7 @@ async def get_all_categories(session: session_dependency):
 )
 async def create_category(session: session_dependency, category: CreateCategory):
     if category.parent_id:
-        await check_category_exists_by_id(session, category.parent_id)
+        await check_category_exists(session, category.parent_id)
 
     category_data = category.model_dump()
     new_category = CategoryModel(
@@ -46,7 +46,7 @@ async def create_category(session: session_dependency, category: CreateCategory)
 )
 async def update_category(
     session: session_dependency,
-    category: Annotated[CategoryModel, Depends(check_category_exists_by_id)],
+    category: Annotated[CategoryModel, Depends(check_category_exists)],
     category_update: CreateCategory,
 ):
     updates = category_update.model_dump(exclude_none=True)
@@ -54,7 +54,7 @@ async def update_category(
         return category
 
     if category_update.parent_id:
-        await check_category_exists_by_id(session, category_update.parent_id)
+        await check_category_exists(session, category_update.parent_id)
 
     if "name" in updates:
         updates["slug"] = slugify(updates["name"])
@@ -66,7 +66,7 @@ async def update_category(
 @router.delete("/{category_id:uuid}", dependencies=[Depends(get_current_admin)])
 async def delete_category(
     session: session_dependency,
-    category: Annotated[CategoryModel, Depends(check_category_exists_by_id)],
+    category: Annotated[CategoryModel, Depends(check_category_exists)],
 ) -> dict:
     await CategoryCrudManager.delete(session, category)
     return {"transaction": "Category delete is successful"}

@@ -30,15 +30,25 @@ class _CheckerExistsByID[T: Base]:
         return value
 
 
-check_category_exists = _CheckerExistsByID[Category](CategoryCrudManager)
-check_product_exists = _CheckerExistsByID[Product](ProductCrudManager)
-check_user_exists = _CheckerExistsByID[User](UserCrudManager)
+_checker_category_exists = _CheckerExistsByID[Category](CategoryCrudManager)
+_checker_product_exists = _CheckerExistsByID[Product](ProductCrudManager)
+_checker_user_exists = _CheckerExistsByID[User](UserCrudManager)
 
 
-async def check_category_exists_by_id(
+async def check_category_exists(
     session: session_dependency, category_id: UUID
 ) -> Category:
-    return await check_category_exists(session, category_id)
+    return await _checker_category_exists(session, category_id)
+
+
+async def check_product_exists(
+    session: session_dependency, product_id: UUID
+) -> Product:
+    return await _checker_product_exists(session, product_id)
+
+
+async def check_user_exists_by_id(session: session_dependency, user_id: UUID) -> User:
+    return await _checker_user_exists(session, user_id)
 
 
 async def check_user_by_username_or_email(

@@ -7,10 +7,11 @@ from app.crud import (
     BaseCrudManager,
     CategoryCrudManager,
     ProductCrudManager,
+    ReviewCrudManager,
     UserCrudManager,
 )
 from app.database import Base
-from app.models import Category, Product, User
+from app.models import Category, Product, Review, User
 from app.schemas import CreateUser
 
 from .db import session_dependency
@@ -33,6 +34,7 @@ class _CheckerExistsByID[T: Base]:
 _checker_category_exists = _CheckerExistsByID[Category](CategoryCrudManager)
 _checker_product_exists = _CheckerExistsByID[Product](ProductCrudManager)
 _checker_user_exists = _CheckerExistsByID[User](UserCrudManager)
+_checker_review_exists = _CheckerExistsByID[Review](ReviewCrudManager)
 
 
 async def check_category_exists(
@@ -47,7 +49,7 @@ async def check_product_exists(
     return await _checker_product_exists(session, product_id)
 
 
-async def check_user_exists_by_id(session: session_dependency, user_id: UUID) -> User:
+async def check_user_exists(session: session_dependency, user_id: UUID) -> User:
     return await _checker_user_exists(session, user_id)
 
 
@@ -61,3 +63,7 @@ async def check_user_by_username_or_email(
         raise HTTPException(
             status.HTTP_409_CONFLICT, "User with this username or email already exists"
         )
+
+
+async def check_review_exists(session: session_dependency, review_id: UUID) -> Review:
+    return await _checker_review_exists(session, review_id)

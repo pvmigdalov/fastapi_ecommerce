@@ -1,11 +1,13 @@
 from .categories_crud import CategoryCrudManager
 from .crud import BaseCrudManager
 from .products_crud import ProductCrudManager
+from .reviews_crud import ReviewCrudManager
 from .users_crud import UserCrudManager
 
 __all__ = (
     "BaseCrudManager",
     "CategoryCrudManager",
     "ProductCrudManager",
+    "ReviewCrudManager",
     "UserCrudManager",
 )

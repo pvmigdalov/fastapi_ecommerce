@@ -1,12 +1,11 @@
-import enum
 import uuid
 from typing import TYPE_CHECKING
 
 from sqlalchemy import (
-    Enum,
     ForeignKey,
     Index,
     String,
+    CheckConstraint,
 )
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
@@ -15,14 +14,6 @@ from app.database import Base
 
 if TYPE_CHECKING:
     from app.models import Product, User
-
-
-class Grade(enum.Enum):
-    ONE = 1
-    TWO = 2
-    THREE = 3
-    FOUR = 4
-    FIVE = 5
 
 
 class Review(Base):
@@ -35,7 +26,7 @@ class Review(Base):
         UUID(as_uuid=True), ForeignKey("users.id"), nullable=False
     )
     comment: Mapped[str] = mapped_column(String(5000), nullable=False)
-    grade: Mapped[Grade] = mapped_column(Enum(Grade), nullable=False)
+    grade: Mapped[int] = mapped_column(nullable=False)
 
     product: Mapped["Product"] = relationship("Product", back_populates="reviews")
     user: Mapped["User"] = relationship("User", back_populates="reviews")
@@ -48,4 +39,5 @@ class Review(Base):
             unique=True,
             postgresql_where="is_active = true",
         ),
+        CheckConstraint("grade BETWEEN 1 AND 5", name="check_grade_range"),
     )

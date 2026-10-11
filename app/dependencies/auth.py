@@ -8,11 +8,11 @@ from app.auth_utils import AuthHelper
 from app.crud import (
     UserCrudManager,
 )
-from app.models import Product, User
+from app.models import Product, User, Review
 from app.schemas import CreateUser
 
 from .db import session_dependency
-from .existence_checks import check_product_exists
+from .existence_checks import check_product_exists, check_review_exists
 
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/token")
@@ -42,6 +42,12 @@ async def get_current_supplier(
     return await AuthHelper.get_current_supplier(session, user_jwt)
 
 
+async def get_current_customer(
+    session: session_dependency, user_jwt: Annotated[str, Depends(oauth2_scheme)]
+) -> User:
+    return await AuthHelper.get_current_customer(session, user_jwt)
+
+
 async def get_current_admin(
     session: session_dependency, user_jwt: Annotated[str, Depends(oauth2_scheme)]
 ) -> User:
@@ -55,7 +61,18 @@ async def get_owned_product(
 ) -> Product:
     user = await AuthHelper.get_current_supplier(session, user_jwt)
     product = await check_product_exists(session, product_id)
-    if user.id != product.supplier_id:
+    if product.supplier_id != user.id:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Forbidden")
-
     return product
+
+
+async def get_owned_review(
+    session: session_dependency,
+    user_jwt: Annotated[str, Depends(oauth2_scheme)],
+    review_id: UUID,
+) -> Review:
+    user = await AuthHelper.get_current_customer(session, user_jwt)
+    review = await check_review_exists(session, review_id)
+    if review.user_id != user.id:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Forbiden")
+    return review

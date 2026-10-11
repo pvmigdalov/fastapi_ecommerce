@@ -12,6 +12,7 @@ class ReviewCreate(BaseModel):
     user_id: Annotated[UUID4, Field(..., descripption="User's uuid v4")]
     comment: Annotated[str, Field(..., gt=1, le=5000, description="Text of review")]
     grade: Annotated[int, Field(..., ge=1, le=5, description="Product's grade")]
+    model_config = ConfigDict(extra="forbid")
 
 
 class Review(ReviewCreate):

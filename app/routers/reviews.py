@@ -1,15 +1,31 @@
-from typing import Annotated
 from collections.abc import Sequence
+from typing import Annotated
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, status
 
 from app.crud import ReviewCrudManager
-from app.dependencies import session_dependency, get_owned_review
-from app.schemas.reviews import Review, ReviewUpdate
+from app.dependencies import get_current_customer, get_owned_review, session_dependency
 from app.models import Review as ReviewModel
-
+from app.models import User
+from app.schemas.reviews import Review, ReviewCreate, ReviewUpdate
 
 router = APIRouter(prefix="/reviews", tags=["Reviews"])
+
+
+@router.post(
+    "/",
+    status_code=status.HTTP_201_CREATED,
+    response_model=Review,
+)
+async def create_review(
+    session: session_dependency,
+    review: ReviewCreate,
+    user: Annotated[User, Depends(get_current_customer)],
+):
+    review_data = review.model_dump(exclude_none=True)
+    new_review = ReviewModel(**review_data)
+    await ReviewCrudManager.add(session, new_review)
+    return new_review
 
 
 @router.get("/", response_model=Sequence[Review])

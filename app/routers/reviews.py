@@ -1,10 +1,16 @@
 from collections.abc import Sequence
 from typing import Annotated
+from uuid import UUID
 
 from fastapi import APIRouter, Depends, status
 
 from app.crud import ReviewCrudManager
-from app.dependencies import get_current_customer, get_owned_review, session_dependency
+from app.dependencies import (
+    check_product_exists,
+    get_current_customer,
+    get_owned_review,
+    session_dependency,
+)
 from app.models import Review as ReviewModel
 from app.models import User
 from app.schemas.reviews import Review, ReviewCreate, ReviewUpdate
@@ -26,6 +32,18 @@ async def create_review(
     new_review = ReviewModel(**review_data)
     await ReviewCrudManager.add(session, new_review)
     return new_review
+
+
+@router.get(
+    "/product/{product_id:uuid}",
+    response_model=Sequence[Review],
+    dependencies=[Depends(check_product_exists)],
+)
+async def get_products_reviews(
+    session: session_dependency,
+    product_id: UUID,
+):
+    return await ReviewCrudManager.select_product_reviews(session, product_id)
 
 
 @router.get("/", response_model=Sequence[Review])

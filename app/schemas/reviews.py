@@ -10,7 +10,7 @@ class ReviewCreate(BaseModel):
 
     product_id: Annotated[UUID4, Field(..., description="Product's uuiid v4")]
     user_id: Annotated[UUID4, Field(..., descripption="User's uuid v4")]
-    comment: Annotated[str, Field(..., gt=1, le=5000, description="Text of review")]
+    comment: Annotated[str, Field(..., max_lenght=5000, description="Text of review")]
     grade: Annotated[int, Field(..., ge=1, le=5, description="Product's grade")]
     model_config = ConfigDict(extra="forbid")
 
@@ -21,7 +21,7 @@ class Review(ReviewCreate):
     """
 
     id: Annotated[UUID4, Field(..., description="Review's uuid v4")]
-    is_actve: Annotated[bool, Field(..., description="Activity status")]
+    is_active: Annotated[bool, Field(..., description="Activity status")]
     model_config = ConfigDict(from_attributes=True)
 
 

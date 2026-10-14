@@ -33,12 +33,7 @@ class AuthHelper:
             or not cls.password_util.verify(password, user.hashed_password)
             or not user.is_active
         ):
-            raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Invalid authentication credentials",
-                headers={"WWW-Authenticate": "Bearer"},
-            )
-
+            raise cls.get_credentals_exception(detail="Incorrect username or password")
         return user
 
     @classmethod

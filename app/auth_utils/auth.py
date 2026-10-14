@@ -92,11 +92,14 @@ class AuthHelper:
             "sub": user.username,
             "id": str(user.id),
             "user_role": user.user_role.value,
-            "iat": datetime.now(timezone.utc),
-            "exp": datetime.now(timezone.utc) + timedelta(days=cls.jwt_expires_days),
+            "iat": int(datetime.now(timezone.utc).timestamp()),
+            "exp": int(
+                (
+                    datetime.now(timezone.utc) + timedelta(days=cls.jwt_expires_days)
+                ).timestamp()
+            ),
         }
 
-        payload["exp"] = int(payload["exp"].timestamp())
         return jwt.encode(
             payload,
             key=cls.jwt_secret_key,

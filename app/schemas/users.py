@@ -13,6 +13,16 @@ class UserRole(str, Enum):
     CUSTOMER = "CUSTOMER"
 
 
+class UserRoleWithAdmin(str, Enum):
+    """
+    Enum of user roles with admin role
+    """
+
+    SUPPLIER = "SUPPLIER"
+    CUSTOMER = "CUSTOMER"
+    ADMIN = "ADMIN"
+
+
 class CreateUser(BaseModel):
     """
     User's schema for POST/PUT requests
@@ -35,5 +45,5 @@ class User(BaseModel):
     name: str
     username: str
     email: EmailStr
-    user_role: UserRole
+    user_role: UserRoleWithAdmin
     model_config = ConfigDict(from_attributes=True)

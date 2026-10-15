@@ -6,11 +6,21 @@ import jwt
 from fastapi import HTTPException, status
 from pwdlib import PasswordHash
 from sqlalchemy.ext.asyncio import AsyncSession
+from pydantic import BaseModel, ValidationError
 
 from app.crud import UserCrudManager
 from app.models import User, UserRole
 from app.settings import settings
 from app.utils import non_instantiable
+
+
+class JWTPayload(BaseModel):
+    sub: str
+    user_id: str
+    user_role: str
+    type: Literal["access", "refresh"]
+    iat: int
+    exp: int
 
 
 @non_instantiable
@@ -44,14 +54,9 @@ class AuthHelper:
         user_jwt: str,
     ) -> User:
         payload = cls.decode_token(user_jwt)
-        user_id = payload.get("id")
-        if not user_id:
-            raise cls.get_credentals_exception(detail="Could not validate credentials")
-
-        user = await UserCrudManager.select_by_id(session, UUID(user_id))
+        user = await UserCrudManager.select_by_id(session, UUID(payload.user_id))
         if not user or not user.is_active:
             raise cls.get_credentals_exception(detail="Could not validate credentials")
-
         return user
 
     @classmethod
@@ -92,26 +97,27 @@ class AuthHelper:
         else:
             raise ValueError("Invalid token type. Must be 'access' or 'refresh'.")
 
+        # Validating jwt payload
         now = datetime.now(timezone.utc)
-        payload = {
-            "sub": user.username,
-            "id": str(user.id),
-            "user_role": user.user_role.value,
-            "type": type_,
-            "iat": int(now.timestamp()),
-            "exp": int((now + timedelta(days=expires_days)).timestamp()),
-        }
+        payload = JWTPayload(
+            sub=user.username,
+            user_id=str(user.id),
+            user_role=user.user_role.value,
+            type=type_,
+            iat=int(now.timestamp()),
+            exp=int((now + timedelta(days=expires_days)).timestamp()),
+        )
 
         return jwt.encode(
-            payload,
+            payload.model_dump(),
             key=cls.jwt_secret_key,
             algorithm=cls.jwt_algorithm,
         )
 
     @classmethod
-    def decode_token(cls, jwt_token: str):
+    def decode_token(cls, jwt_token: str) -> JWTPayload:
         try:
-            payload = jwt.decode(
+            jwt_decoded = jwt.decode(
                 jwt_token,
                 key=cls.jwt_secret_key,
                 algorithms=[cls.jwt_algorithm],
@@ -127,6 +133,11 @@ class AuthHelper:
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
                 detail="Internal server error",
             )
+
+        try:
+            payload = JWTPayload.model_validate(jwt_decoded)
+        except ValidationError:
+            raise cls.get_credentals_exception(detail="Invalid token payload")
         else:
             return payload
 

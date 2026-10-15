@@ -3,7 +3,7 @@ from typing import Literal
 from uuid import UUID
 
 import jwt
-from fastapi import HTTPException, status
+from fastapi import HTTPException
 from pwdlib import PasswordHash
 from sqlalchemy.ext.asyncio import AsyncSession
 from pydantic import BaseModel, ValidationError
@@ -12,6 +12,22 @@ from app.crud import UserCrudManager
 from app.models import User, UserRole
 from app.settings import settings
 from app.utils import non_instantiable
+
+from .exceptions.base import (
+    BaseAuthException,
+    BaseJWTException,
+)
+from .exceptions import (
+    IncorrectUsernameOrPasswordException,
+    UserDoesNotExistsException,
+    SupplierDoesNotExistsException,
+    CustomerDoesNotExistsException,
+    AdminDoesNotExistsException,
+    InvalidJWTTypeException,
+    InvalidJWTPayloadException,
+    ExpiredJWTException,
+    InvalidJWTException,
+)
 
 
 class JWTPayload(BaseModel):
@@ -44,7 +60,8 @@ class AuthHelper:
             or not cls.password_util.verify(password, user.hashed_password)
             or not user.is_active
         ):
-            raise cls.get_credentals_exception(detail="Incorrect username or password")
+            # raise cls.get_credentals_exception(detail="Incorrect username or password")
+            raise IncorrectUsernameOrPasswordException
         return user
 
     @classmethod
@@ -56,34 +73,38 @@ class AuthHelper:
         payload = cls.verify_token(user_jwt, type_="access")
         user = await UserCrudManager.select_by_id(session, UUID(payload.user_id))
         if not user or not user.is_active:
-            raise cls.get_credentals_exception(detail="Could not validate credentials")
+            # raise cls.get_credentals_exception(detail="Could not validate credentials")
+            raise UserDoesNotExistsException
         return user
 
     @classmethod
     async def get_current_supplier(cls, session: AsyncSession, user_jwt: str) -> User:
         user = await cls.get_current_user(session, user_jwt)
         if user.user_role == UserRole.CUSTOMER:
-            raise cls.get_credentals_exception(
-                status_code=status.HTTP_403_FORBIDDEN, detail="You can be supplier"
-            )
+            # raise cls.get_credentals_exception(
+            #     status_code=status.HTTP_403_FORBIDDEN, detail="You can be supplier"
+            # )
+            raise SupplierDoesNotExistsException
         return user
 
     @classmethod
     async def get_current_customer(cls, session: AsyncSession, user_jwt: str) -> User:
         user = await cls.get_current_user(session, user_jwt)
         if user.user_role == UserRole.SUPPLIER:
-            raise cls.get_credentals_exception(
-                status_code=status.HTTP_403_FORBIDDEN, detail="You can be customer"
-            )
+            # raise cls.get_credentals_exception(
+            #     status_code=status.HTTP_403_FORBIDDEN, detail="You can be customer"
+            # )
+            raise CustomerDoesNotExistsException
         return user
 
     @classmethod
     async def get_current_admin(cls, session: AsyncSession, user_jwt: str) -> User:
         user = await cls.get_current_user(session, user_jwt)
         if user.user_role != UserRole.ADMIN:
-            raise cls.get_credentals_exception(
-                status_code=status.HTTP_403_FORBIDDEN, detail="Access denied"
-            )
+            # raise cls.get_credentals_exception(
+            #     status_code=status.HTTP_403_FORBIDDEN, detail="Access denied"
+            # )
+            raise AdminDoesNotExistsException
         return user
 
     @classmethod
@@ -95,7 +116,8 @@ class AuthHelper:
         elif type_ == "refresh":
             expires_days = cls.jwt_refresh_expires_days
         else:
-            raise ValueError("Invalid token type. Must be 'access' or 'refresh'.")
+            # raise ValueError("Invalid token type. Must be 'access' or 'refresh'")
+            raise InvalidJWTTypeException
 
         # Validating jwt payload
         now = datetime.now(timezone.utc)
@@ -116,19 +138,21 @@ class AuthHelper:
 
     @classmethod
     def verify_token(
-        cls, jwt_token: str, type_: Literal["access", "refresh"] = "access"
+        cls, token: str, type_: Literal["access", "refresh"] = "access"
     ) -> JWTPayload:
-        jwt_decoded = cls._decode_token(jwt_token)
+        jwt_decoded = cls._decode_token(token)
 
         try:
             payload = JWTPayload.model_validate(jwt_decoded)
         except ValidationError:
-            raise cls.get_credentals_exception(detail="Invalid token payload")
+            # raise cls.get_credentals_exception(detail="Invalid token payload")
+            raise InvalidJWTPayloadException
 
         if payload.type != type_:
-            raise cls.get_credentals_exception(
-                detail=f"Invalid jwt token type. Must be: {type_!r}"
-            )
+            # raise cls.get_credentals_exception(
+            #     detail=f"Invalid jwt token type. Must be {type_!r}"
+            # )
+            raise InvalidJWTTypeException(type_)
         return payload
 
     @classmethod
@@ -142,23 +166,27 @@ class AuthHelper:
         )
 
     @classmethod
-    def _decode_token(cls, jwt_token: str) -> dict:
+    def _decode_token(cls, token: str) -> dict:
         try:
             jwt_decoded = jwt.decode(
-                jwt_token,
+                token,
                 key=cls.jwt_secret_key,
                 algorithms=[cls.jwt_algorithm],
             )
         except jwt.ExpiredSignatureError:
-            raise cls.get_credentals_exception(detail="Token has expired")
+            # raise cls.get_credentals_exception(detail="Token has expired")
+            raise ExpiredJWTException
         except jwt.InvalidTokenError:
-            raise cls.get_credentals_exception(detail="Invalid token")
+            # raise cls.get_credentals_exception(detail="Invalid token")
+            raise InvalidJWTException
         except jwt.PyJWTError:
-            raise cls.get_credentals_exception(detail="Could not validate credentials")
+            # raise cls.get_credentals_exception(detail="Could not validate credentials")
+            raise BaseJWTException
         except Exception:
-            raise cls.get_credentals_exception(
-                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                detail="Internal server error",
-            )
+            # raise cls.get_credentals_exception(
+            #     status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            #     detail="Internal server error",
+            # )
+            raise BaseAuthException
         else:
             return jwt_decoded

@@ -53,7 +53,7 @@ class AuthHelper:
         session: AsyncSession,
         user_jwt: str,
     ) -> User:
-        payload = cls.decode_token(user_jwt)
+        payload = cls.verify_token(user_jwt, type_="access")
         user = await UserCrudManager.select_by_id(session, UUID(payload.user_id))
         if not user or not user.is_active:
             raise cls.get_credentals_exception(detail="Could not validate credentials")
@@ -115,7 +115,34 @@ class AuthHelper:
         )
 
     @classmethod
-    def decode_token(cls, jwt_token: str) -> JWTPayload:
+    def verify_token(
+        cls, jwt_token: str, type_: Literal["access", "refresh"] = "access"
+    ) -> JWTPayload:
+        jwt_decoded = cls._decode_token(jwt_token)
+
+        try:
+            payload = JWTPayload.model_validate(jwt_decoded)
+        except ValidationError:
+            raise cls.get_credentals_exception(detail="Invalid token payload")
+
+        if payload.type != type_:
+            raise cls.get_credentals_exception(
+                detail=f"Invalid jwt token type. Must be: {type_!r}"
+            )
+        return payload
+
+    @classmethod
+    def get_credentals_exception(
+        cls, *, status_code: int = 401, detail: str = ""
+    ) -> HTTPException:
+        return HTTPException(
+            status_code=status_code,
+            detail=detail,
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
+    @classmethod
+    def _decode_token(cls, jwt_token: str) -> dict:
         try:
             jwt_decoded = jwt.decode(
                 jwt_token,
@@ -133,20 +160,5 @@ class AuthHelper:
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
                 detail="Internal server error",
             )
-
-        try:
-            payload = JWTPayload.model_validate(jwt_decoded)
-        except ValidationError:
-            raise cls.get_credentals_exception(detail="Invalid token payload")
         else:
-            return payload
-
-    @classmethod
-    def get_credentals_exception(
-        cls, *, status_code: int = 401, detail: str = ""
-    ) -> HTTPException:
-        return HTTPException(
-            status_code=status_code,
-            detail=detail,
-            headers={"WWW-Authenticate": "Bearer"},
-        )
+            return jwt_decoded

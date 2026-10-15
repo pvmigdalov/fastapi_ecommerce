@@ -20,7 +20,7 @@ class AuthHelper:
     jwt_algorithm: str = settings.auth_settings.jwt_algorithm
     jwt_secret_key: str = settings.auth_settings.jwt_secret_key.get_secret_value()
     jwt_expires_days: int = settings.auth_settings.jwt_expires_days
-    jwt_refresh_expires_days: int = 7  # TODO: Make this configurable in settings
+    jwt_refresh_expires_days: int = settings.auth_settings.jwt_refresh_expires_days
 
     @classmethod
     async def authenticate_user(
@@ -99,15 +99,14 @@ class AuthHelper:
         else:
             raise ValueError("Invalid token type. Must be 'access' or 'refresh'.")
 
+        now = datetime.now(timezone.utc)
         payload = {
             "sub": user.username,
             "id": str(user.id),
             "user_role": user.user_role.value,
             "type": type_,
-            "iat": int(datetime.now(timezone.utc).timestamp()),
-            "exp": int(
-                (datetime.now(timezone.utc) + timedelta(days=expires_days)).timestamp()
-            ),
+            "iat": int(now.timestamp()),
+            "exp": int((now + timedelta(days=expires_days)).timestamp()),
         }
 
         return jwt.encode(

@@ -1,5 +1,4 @@
 from datetime import datetime, timedelta, timezone
-from functools import lru_cache
 from typing import Literal
 from uuid import UUID
 
@@ -44,13 +43,7 @@ class AuthHelper:
         session: AsyncSession,
         user_jwt: str,
     ) -> User:
-        try:
-            payload = cls.decode_token(user_jwt)
-        except jwt.ExpiredSignatureError:
-            raise cls.get_credentals_exception(detail="Token has expired")
-        except jwt.PyJWTError:
-            raise cls.get_credentals_exception(detail="Could not validate credentials")
-
+        payload = cls.decode_token(user_jwt)
         user_id = payload.get("id")
         if not user_id:
             raise cls.get_credentals_exception(detail="Could not validate credentials")
@@ -117,15 +110,27 @@ class AuthHelper:
 
     @classmethod
     def decode_token(cls, jwt_token: str):
-        payload = jwt.decode(
-            jwt_token,
-            key=cls.jwt_secret_key,
-            algorithms=[cls.jwt_algorithm],
-        )
-        return payload
+        try:
+            payload = jwt.decode(
+                jwt_token,
+                key=cls.jwt_secret_key,
+                algorithms=[cls.jwt_algorithm],
+            )
+        except jwt.ExpiredSignatureError:
+            raise cls.get_credentals_exception(detail="Token has expired")
+        except jwt.InvalidTokenError:
+            raise cls.get_credentals_exception(detail="Invalid token")
+        except jwt.PyJWTError:
+            raise cls.get_credentals_exception(detail="Could not validate credentials")
+        except Exception:
+            raise cls.get_credentals_exception(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail="Internal server error",
+            )
+        else:
+            return payload
 
     @classmethod
-    @lru_cache(1)
     def get_credentals_exception(
         cls, *, status_code: int = 401, detail: str = ""
     ) -> HTTPException:

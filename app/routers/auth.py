@@ -1,7 +1,7 @@
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, status
-from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
+from fastapi.security import OAuth2PasswordRequestForm
 
 from app.auth_utils import AuthHelper
 from app.crud import UserCrudManager
@@ -15,7 +15,6 @@ from app.schemas import CreateUser, User
 
 
 router = APIRouter(prefix="/auth", tags=["Auth"])
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/token")
 
 
 @router.post(
@@ -42,7 +41,7 @@ async def get_token(
     user = await AuthHelper.authenticate_user(
         session, form_data.username, form_data.password
     )
-    token = AuthHelper.create_access_token(user)
+    token = AuthHelper.create_token(user, type_="access")
     return {"access_token": token, "token_type": "bearer"}
 
 

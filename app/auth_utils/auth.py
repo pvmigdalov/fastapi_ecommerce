@@ -1,5 +1,6 @@
 from datetime import datetime, timedelta, timezone
 from functools import lru_cache
+from typing import Literal
 from uuid import UUID
 
 import jwt
@@ -19,6 +20,7 @@ class AuthHelper:
     jwt_algorithm: str = settings.auth_settings.jwt_algorithm
     jwt_secret_key: str = settings.auth_settings.jwt_secret_key.get_secret_value()
     jwt_expires_days: int = settings.auth_settings.jwt_expires_days
+    jwt_refresh_expires_days: int = 7  # TODO: Make this configurable in settings
 
     @classmethod
     async def authenticate_user(
@@ -87,16 +89,24 @@ class AuthHelper:
         return user
 
     @classmethod
-    def create_access_token(cls, user: User) -> str:
+    def create_token(
+        cls, user: User, type_: Literal["access", "refresh"] = "access"
+    ) -> str:
+        if type_ == "access":
+            expires_days = cls.jwt_expires_days
+        elif type_ == "refresh":
+            expires_days = cls.jwt_refresh_expires_days
+        else:
+            raise ValueError("Invalid token type. Must be 'access' or 'refresh'.")
+
         payload = {
             "sub": user.username,
             "id": str(user.id),
             "user_role": user.user_role.value,
+            "type": type_,
             "iat": int(datetime.now(timezone.utc).timestamp()),
             "exp": int(
-                (
-                    datetime.now(timezone.utc) + timedelta(days=cls.jwt_expires_days)
-                ).timestamp()
+                (datetime.now(timezone.utc) + timedelta(days=expires_days)).timestamp()
             ),
         }
 

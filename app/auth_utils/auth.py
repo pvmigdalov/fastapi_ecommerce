@@ -60,7 +60,6 @@ class AuthHelper:
             or not cls.password_util.verify(password, user.hashed_password)
             or not user.is_active
         ):
-            # raise cls.get_credentials_exception(detail="Incorrect username or password")
             raise IncorrectUsernameOrPasswordException(
                 status_code=status.HTTP_401_UNAUTHORIZED
             )
@@ -75,7 +74,6 @@ class AuthHelper:
         payload = cls.verify_token(user_jwt, type_="access")
         user = await UserCrudManager.select_by_id(session, UUID(payload.user_id))
         if not user or not user.is_active:
-            # raise cls.get_credentials_exception(detail="Could not validate credentials")
             raise UserDoesNotExistsException(status_code=status.HTTP_401_UNAUTHORIZED)
         return user
 
@@ -83,9 +81,6 @@ class AuthHelper:
     async def get_current_supplier(cls, session: AsyncSession, user_jwt: str) -> User:
         user = await cls.get_current_user(session, user_jwt)
         if user.user_role == UserRole.CUSTOMER:
-            # raise cls.get_credentials_exception(
-            #     status_code=status.HTTP_403_FORBIDDEN, detail="You can be supplier"
-            # )
             raise SupplierDoesNotExistsException(status_code=status.HTTP_403_FORBIDDEN)
         return user
 
@@ -93,9 +88,6 @@ class AuthHelper:
     async def get_current_customer(cls, session: AsyncSession, user_jwt: str) -> User:
         user = await cls.get_current_user(session, user_jwt)
         if user.user_role == UserRole.SUPPLIER:
-            # raise cls.get_credentials_exception(
-            #     status_code=status.HTTP_403_FORBIDDEN, detail="You can be customer"
-            # )
             raise CustomerDoesNotExistsException(status_code=status.HTTP_403_FORBIDDEN)
         return user
 
@@ -103,9 +95,6 @@ class AuthHelper:
     async def get_current_admin(cls, session: AsyncSession, user_jwt: str) -> User:
         user = await cls.get_current_user(session, user_jwt)
         if user.user_role != UserRole.ADMIN:
-            # raise cls.get_credentials_exception(
-            #     status_code=status.HTTP_403_FORBIDDEN, detail="Access denied"
-            # )
             raise AdminDoesNotExistsException(status_code=status.HTTP_403_FORBIDDEN)
         return user
 
@@ -118,7 +107,6 @@ class AuthHelper:
         elif type_ == "refresh":
             expires_days = cls.jwt_refresh_expires_days
         else:
-            # raise ValueError("Invalid token type. Must be 'access' or 'refresh'")
             raise InvalidJWTTypeException()
 
         # Validating jwt payload
@@ -147,13 +135,9 @@ class AuthHelper:
         try:
             payload = JWTPayload.model_validate(jwt_decoded)
         except ValidationError:
-            # raise cls.get_credentials_exception(detail="Invalid token payload")
             raise InvalidJWTPayloadException()
 
         if payload.type != type_:
-            # raise cls.get_credentials_exception(
-            #     detail=f"Invalid jwt token type. Must be {type_!r}"
-            # )
             raise InvalidJWTTypeException(type_=type_)
         return payload
 
@@ -176,19 +160,12 @@ class AuthHelper:
                 algorithms=[cls.jwt_algorithm],
             )
         except jwt.ExpiredSignatureError:
-            # raise cls.get_credentials_exception(detail="Token has expired")
             raise ExpiredJWTException()
         except jwt.InvalidTokenError:
-            # raise cls.get_credentials_exception(detail="Invalid token")
             raise InvalidJWTException()
         except jwt.PyJWTError:
-            # raise cls.get_credentials_exception(detail="Could not validate credentials")
             raise BaseJWTException()
         except Exception:
-            # raise cls.get_credentials_exception(
-            #     status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            #     detail="Internal server error",
-            # )
             raise BaseAuthException()
         else:
             return jwt_decoded

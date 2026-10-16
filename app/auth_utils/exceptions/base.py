@@ -1,11 +1,13 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import ClassVar
 
 
 @dataclass(kw_only=True)
 class BaseAuthException(Exception):
     status_code: int = 500
-    headers: dict[str, str] = {"WWW-Authenticate": "Bearer"}
+    headers: dict[str, str] = field(
+        default_factory=lambda: {"WWW-Authenticate": "Bearer"}
+    )
 
     @property
     def message(self):

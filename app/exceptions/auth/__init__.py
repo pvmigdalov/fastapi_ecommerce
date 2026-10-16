@@ -1,7 +1,6 @@
-# from .base import BaseAuthException, BaseJWTException, BaseUserException
 from . import base
 
-from .exceptions import (
+from .auth_exceptions import (
     AdminDoesNotExistsException,
     CustomerDoesNotExistsException,
     ExpiredJWTException,
@@ -15,9 +14,6 @@ from .exceptions import (
 
 __all__ = (
     "base",
-    # "BaseAuthException",
-    # "BaseJWTException",
-    # "BaseUserException",
     "AdminDoesNotExistsException",
     "CustomerDoesNotExistsException",
     "ExpiredJWTException",

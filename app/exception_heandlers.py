@@ -1,7 +1,7 @@
 from fastapi import FastAPI, HTTPException
 from fastapi.requests import Request
 
-from app.auth_utils.exceptions import (
+from app.exceptions.auth import (
     AdminDoesNotExistsException,
     CustomerDoesNotExistsException,
     ExpiredJWTException,
@@ -12,7 +12,7 @@ from app.auth_utils.exceptions import (
     SupplierDoesNotExistsException,
     UserDoesNotExistsException,
 )
-from app.auth_utils.exceptions.base import (
+from app.exceptions.auth.base import (
     BaseAuthException,
     BaseJWTException,
     BaseUserException,

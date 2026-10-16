@@ -5,29 +5,28 @@ from uuid import UUID
 import jwt
 from fastapi import HTTPException, status
 from pwdlib import PasswordHash
-from sqlalchemy.ext.asyncio import AsyncSession
 from pydantic import BaseModel, ValidationError
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.crud import UserCrudManager
-from app.models import User, UserRole
-from app.settings import settings
-from app.utils import non_instantiable
-
-from .exceptions.base import (
+from app.exceptions.auth import (
+    AdminDoesNotExistsException,
+    CustomerDoesNotExistsException,
+    ExpiredJWTException,
+    IncorrectUsernameOrPasswordException,
+    InvalidJWTException,
+    InvalidJWTPayloadException,
+    InvalidJWTTypeException,
+    SupplierDoesNotExistsException,
+    UserDoesNotExistsException,
+)
+from app.exceptions.auth.base import (
     BaseAuthException,
     BaseJWTException,
 )
-from .exceptions import (
-    IncorrectUsernameOrPasswordException,
-    UserDoesNotExistsException,
-    SupplierDoesNotExistsException,
-    CustomerDoesNotExistsException,
-    AdminDoesNotExistsException,
-    InvalidJWTTypeException,
-    InvalidJWTPayloadException,
-    ExpiredJWTException,
-    InvalidJWTException,
-)
+from app.models import User, UserRole
+from app.settings import settings
+from app.utils import non_instantiable
 
 
 class JWTPayload(BaseModel):

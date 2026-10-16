@@ -1,5 +1,4 @@
 from . import base
-
 from .auth_exceptions import (
     AdminDoesNotExistsException,
     CustomerDoesNotExistsException,
@@ -9,6 +8,7 @@ from .auth_exceptions import (
     InvalidJWTPayloadException,
     InvalidJWTTypeException,
     SupplierDoesNotExistsException,
+    UserAlreadyExistsException,
     UserDoesNotExistsException,
 )
 
@@ -22,5 +22,6 @@ __all__ = (
     "InvalidJWTPayloadException",
     "InvalidJWTTypeException",
     "SupplierDoesNotExistsException",
+    "UserAlreadyExistsException",
     "UserDoesNotExistsException",
 )

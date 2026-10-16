@@ -1,35 +1,13 @@
+from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
-from typing import ClassVar
 
 
 @dataclass(kw_only=True)
-class BaseAuthException(Exception):
+class BaseApplicationException(Exception, ABC):
     status_code: int = 500
-    headers: dict[str, str] = field(
-        default_factory=lambda: {"WWW-Authenticate": "Bearer"}
-    )
+    headers: dict[str, str] = field(default_factory=dict)
 
     @property
-    def message(self):
-        return "An unknown error has occurred"
-
-
-@dataclass(kw_only=True)
-class BaseUserException(BaseAuthException):
-    @property
-    def message(self):
-        return "An unknown user authenticate error has occurred"
-
-
-@dataclass(kw_only=True)
-class BaseJWTException(BaseAuthException):
-    token_types: ClassVar[tuple[str, ...]] = (
-        "access",
-        "refresh",
-    )
-
-    status_code: int = 401
-
-    @property
-    def message(self):
-        return "An uknown JWT decoding error has occurred"
+    @abstractmethod
+    def message(self) -> str:
+        return "An unknown application error has occurred"

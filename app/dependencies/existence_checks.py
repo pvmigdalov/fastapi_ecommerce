@@ -1,7 +1,7 @@
 from typing import NoReturn
 from uuid import UUID
 
-from fastapi import HTTPException, status
+from fastapi import status
 
 from app.crud import (
     BaseCrudManager,
@@ -11,6 +11,11 @@ from app.crud import (
     UserCrudManager,
 )
 from app.database import Base
+from app.exceptions import BaseApplicationException
+from app.exceptions.auth import UserAlreadyExistsException, UserDoesNotExistsException
+from app.exceptions.categories import CategoryDoesNotExistsException
+from app.exceptions.products import ProductDoesNotExistsException
+from app.exceptions.reviews import ReviewDoesNotExistsException
 from app.models import Category, Product, Review, User
 from app.schemas import CreateUser
 
@@ -18,23 +23,33 @@ from .db import session_dependency
 
 
 class _CheckerExistsByID[T: Base]:
-    def __init__(self, CrudManager: type[BaseCrudManager]):
+    def __init__(
+        self,
+        CrudManager: type[BaseCrudManager],
+        exc_type: type[BaseApplicationException],
+    ):
         self.CrudManager = CrudManager
+        self.exc_type = exc_type
 
     async def __call__(self, session: session_dependency, id: UUID) -> T:
         value = await self.CrudManager.select_by_id(session, id)
         if value is None:
-            raise HTTPException(
-                status.HTTP_404_NOT_FOUND,
-                f"There are no {self.CrudManager.model_name} found",
-            )
+            raise self.exc_type(status_code=status.HTTP_404_NOT_FOUND)
         return value
 
 
-_checker_category_exists = _CheckerExistsByID[Category](CategoryCrudManager)
-_checker_product_exists = _CheckerExistsByID[Product](ProductCrudManager)
-_checker_user_exists = _CheckerExistsByID[User](UserCrudManager)
-_checker_review_exists = _CheckerExistsByID[Review](ReviewCrudManager)
+_checker_category_exists = _CheckerExistsByID[Category](
+    CategoryCrudManager, CategoryDoesNotExistsException
+)
+_checker_product_exists = _CheckerExistsByID[Product](
+    ProductCrudManager, ProductDoesNotExistsException
+)
+_checker_user_exists = _CheckerExistsByID[User](
+    UserCrudManager, UserDoesNotExistsException
+)
+_checker_review_exists = _CheckerExistsByID[Review](
+    ReviewCrudManager, ReviewDoesNotExistsException
+)
 
 
 async def check_category_exists(
@@ -53,6 +68,10 @@ async def check_user_exists(session: session_dependency, user_id: UUID) -> User:
     return await _checker_user_exists(session, user_id)
 
 
+async def check_review_exists(session: session_dependency, review_id: UUID) -> Review:
+    return await _checker_review_exists(session, review_id)
+
+
 async def check_user_by_username_or_email(
     session: session_dependency, user: CreateUser
 ) -> NoReturn | None:
@@ -60,10 +79,4 @@ async def check_user_by_username_or_email(
         session, user.username, user.email
     )
     if checked_user is not None:
-        raise HTTPException(
-            status.HTTP_409_CONFLICT, "User with this username or email already exists"
-        )
-
-
-async def check_review_exists(session: session_dependency, review_id: UUID) -> Review:
-    return await _checker_review_exists(session, review_id)
+        raise UserAlreadyExistsException(status_code=status.HTTP_409_CONFLICT)

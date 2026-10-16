@@ -1,7 +1,7 @@
 from typing import Annotated, NoReturn
 from uuid import UUID
 
-from fastapi import Depends, HTTPException, status
+from fastapi import Depends, status
 from fastapi.security import OAuth2PasswordBearer
 
 from app.auth_utils import AuthHelper
@@ -10,6 +10,11 @@ from app.crud import (
 )
 from app.models import Product, User, Review
 from app.schemas import CreateUser
+from app.exceptions.auth import (
+    CustomerDoesNotExistsException,
+    UserAlreadyExistsException,
+    SupplierDoesNotExistsException,
+)
 
 from .db import session_dependency
 from .existence_checks import check_product_exists, check_review_exists
@@ -25,9 +30,7 @@ async def check_user_by_username_or_email(
         session, user.username, user.email
     )
     if checked_user is not None:
-        raise HTTPException(
-            status.HTTP_409_CONFLICT, "User with this username or email already exists"
-        )
+        raise UserAlreadyExistsException(status_code=status.HTTP_409_CONFLICT)
 
 
 async def get_current_user(
@@ -62,7 +65,7 @@ async def get_owned_product(
     user = await AuthHelper.get_current_supplier(session, user_jwt)
     product = await check_product_exists(session, product_id)
     if product.supplier_id != user.id:
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Forbidden")
+        raise SupplierDoesNotExistsException(status_code=status.HTTP_403_FORBIDDEN)
     return product
 
 
@@ -74,5 +77,5 @@ async def get_owned_review(
     user = await AuthHelper.get_current_customer(session, user_jwt)
     review = await check_review_exists(session, review_id)
     if review.user_id != user.id:
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Forbiden")
+        raise CustomerDoesNotExistsException(status_code=status.HTTP_403_FORBIDDEN)
     return review

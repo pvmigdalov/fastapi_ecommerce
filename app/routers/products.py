@@ -1,7 +1,7 @@
 from typing import Annotated, Sequence
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, status
 from slugify import slugify
 
 from app.crud import CategoryCrudManager, ProductCrudManager
@@ -11,10 +11,13 @@ from app.dependencies import (
     get_owned_product,
     session_dependency,
 )
+from app.exceptions.products import (
+    ProductDoesNotExistsException,
+    ProductsByCategoryNotFoundException,
+)
 from app.models import Product as ProductModel
 from app.models import User
 from app.schemas import Product, ProductCreate, ProductUpdate
-
 
 router = APIRouter(prefix="/products", tags=["Products"])
 
@@ -51,9 +54,7 @@ async def create_product(
 async def get_product(session: session_dependency, product_id: UUID):
     product = await ProductCrudManager.select_by_id(session, product_id)
     if not product:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="Product not found"
-        )
+        raise ProductDoesNotExistsException(status_code=status.HTTP_404_NOT_FOUND)
     return product
 
 
@@ -63,9 +64,7 @@ async def get_products_by_category(session: session_dependency, category_slug: s
         session, category_slug, CategoryCrudManager
     )
     if not products:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="No products found"
-        )
+        raise ProductsByCategoryNotFoundException(status_code=status.HTTP_404_NOT_FOUND)
     return products
 
 
@@ -73,9 +72,7 @@ async def get_products_by_category(session: session_dependency, category_slug: s
 async def get_product_detail(session: session_dependency, product_slug: str):
     product = await ProductCrudManager.select(session, slug=product_slug)
     if not product:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="Product not found"
-        )
+        raise ProductDoesNotExistsException(status_code=status.HTTP_404_NOT_FOUND)
     return product
 
 

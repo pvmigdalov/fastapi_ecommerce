@@ -12,7 +12,6 @@ from app.dependencies import (
     session_dependency,
 )
 from app.models import Review as ReviewModel
-from app.models import User
 from app.schemas.reviews import Review, ReviewCreate, ReviewUpdate
 
 router = APIRouter(prefix="/reviews", tags=["Reviews"])
@@ -22,11 +21,11 @@ router = APIRouter(prefix="/reviews", tags=["Reviews"])
     "/",
     status_code=status.HTTP_201_CREATED,
     response_model=Review,
+    dependencies=[Depends(get_current_customer)],
 )
 async def create_review(
     session: session_dependency,
     review: ReviewCreate,
-    user: Annotated[User, Depends(get_current_customer)],
 ):
     review_data = review.model_dump(exclude_none=True)
     new_review = ReviewModel(**review_data)

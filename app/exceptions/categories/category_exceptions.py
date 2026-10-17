@@ -19,3 +19,12 @@ class CategoryAlreadyExistsException(BaseCategoryException):
     @property
     def message(self) -> str:
         return "This category already exists"
+
+
+@dataclass(kw_only=True)
+class FindCycleParentsCategoryException(BaseCategoryException):
+    status_code: int = 400
+
+    @property
+    def message(self) -> str:
+        return "Find cycle parents for category"

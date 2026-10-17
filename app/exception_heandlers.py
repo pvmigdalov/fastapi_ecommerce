@@ -29,6 +29,7 @@ CATEGORIES_EXCEPTIONS = (
     categories_exc.base.BaseCategoryException,
     categories_exc.CategoryAlreadyExistsException,
     categories_exc.CategoryDoesNotExistsException,
+    categories_exc.FindCycleParentsCategoryException,
 )
 
 PRODUCTS_EXCEPTIONS = (

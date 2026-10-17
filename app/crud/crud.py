@@ -23,7 +23,7 @@ class AbstractCrudManager[T: Base](ABC):
 
     @classmethod
     @abstractmethod
-    async def select_by_id(cls, session: AsyncSession, _id: UUID) -> T | None: ...
+    async def select_by_id(cls, session: AsyncSession, id_: UUID) -> T | None: ...
 
     @classmethod
     @abstractmethod
@@ -61,9 +61,9 @@ class BaseCrudManager[T: Base](AbstractCrudManager[T]):
         return res.all()
 
     @classmethod
-    async def select_by_id(cls, session: AsyncSession, _id: UUID) -> T | None:
+    async def select_by_id(cls, session: AsyncSession, id_: UUID) -> T | None:
         stmt = select(cls.Model).where(
-            cls.Model.id == _id, cls.Model.is_active.is_(true())
+            cls.Model.id == id_, cls.Model.is_active.is_(true())
         )
         return await session.scalar(stmt)
 

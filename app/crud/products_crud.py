@@ -26,7 +26,7 @@ class ProductCrudManager(BaseCrudManager[Product]):
         CategoryCM: type["CategoryCrudManager"],
     ) -> Sequence[Product]:
         category_hierarchy_ids = await CategoryCM.get_hierarchy_ids(
-            session, category_slug
+            session, slug=category_slug
         )
         stmt = select(cls.Model).where(
             cls.Model.category_id.in_(category_hierarchy_ids)

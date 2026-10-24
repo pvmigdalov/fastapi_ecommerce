@@ -1,5 +1,4 @@
 from typing import Annotated, NoReturn
-from uuid import UUID
 
 from fastapi import Depends, status
 from fastapi.security import OAuth2PasswordBearer
@@ -58,24 +57,18 @@ async def get_current_admin(
 
 
 async def get_owned_product(
-    session: session_dependency,
-    user_jwt: Annotated[str, Depends(oauth2_scheme)],
-    product_id: UUID,
+    user: Annotated[User, Depends(get_current_supplier)],
+    product: Annotated[Product, Depends(check_product_exists)],
 ) -> Product:
-    user = await AuthHelper.get_current_supplier(session, user_jwt)
-    product = await check_product_exists(session, product_id)
     if product.supplier_id != user.id:
         raise SupplierDoesNotExistsException(status_code=status.HTTP_403_FORBIDDEN)
     return product
 
 
 async def get_owned_review(
-    session: session_dependency,
-    user_jwt: Annotated[str, Depends(oauth2_scheme)],
-    review_id: UUID,
+    user: Annotated[User, Depends(get_current_customer)],
+    review: Annotated[Review, check_review_exists],
 ) -> Review:
-    user = await AuthHelper.get_current_customer(session, user_jwt)
-    review = await check_review_exists(session, review_id)
     if review.user_id != user.id:
         raise CustomerDoesNotExistsException(status_code=status.HTTP_403_FORBIDDEN)
     return review

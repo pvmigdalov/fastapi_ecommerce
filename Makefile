@@ -6,6 +6,14 @@ app-uv-run:
 pg-up:
 	docker compose up pg -d
 
+.PHONY: redis-up
+redis-up:
+	docker compose up redis -d
+
+.PHONY: redis-gui-up
+redis-gui-up:
+	docker compose up redis-gui -d		
+
 .PHONY: all-up
 all-up:
 	docker compose up -d

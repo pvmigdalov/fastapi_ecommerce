@@ -27,9 +27,19 @@ class AuthSettings(BaseSettings):
     )
 
 
+class RedisSettings(BaseSettings):
+    redis_rate_limiter_url: Annotated[str, Field(..., alias="REDIS_RATE_LIMITER_URL")]
+    redis_cache_url: Annotated[str, Field(..., alias="REDIS_CACHE_URL")]
+
+    model_config = SettingsConfigDict(
+        env_file="app/settongs/redis.env", env_file_encoding="utf-8"
+    )
+
+
 class Settings(BaseSettings):
     db_settings: Annotated[DBSettings, Field(default_factory=DBSettings)]
     auth_settings: Annotated[AuthSettings, Field(default_factory=AuthSettings)]
+    redis_settings: Annotated[RedisSettings, Field(default_factory=RedisSettings)]
 
 
 settings = Settings()

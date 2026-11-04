@@ -32,7 +32,7 @@ class RedisSettings(BaseSettings):
     redis_cache_url: Annotated[str, Field(..., alias="REDIS_CACHE_URL")]
 
     model_config = SettingsConfigDict(
-        env_file="app/settongs/redis.env", env_file_encoding="utf-8"
+        env_file="app/settings/redis.env", env_file_encoding="utf-8"
     )
 
 

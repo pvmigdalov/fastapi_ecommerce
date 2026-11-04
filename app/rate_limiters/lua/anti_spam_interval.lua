@@ -3,7 +3,8 @@ local min_interval = tonumber(ARGV[1])
 local ttl_seconds = tonumber(ARGV[2]) or 300    
 
 -- ВАЖНО: время получаем прямо на сервере Redis
-local redis_current_time = redis.time()
+-- local redis_current_time = redis.time()
+local redis_current_time = redis.call('TIME')
 local now = redis_current_time[1] + (redis_current_time[2] / 1000000)
 -- redis.time() возвращает {сек, микросек}. Нам нужна float‑секунда.
 

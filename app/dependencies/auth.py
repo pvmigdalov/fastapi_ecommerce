@@ -7,9 +7,10 @@ from app.auth_utils import AuthHelper
 from app.crud import (
     UserCrudManager,
 )
-from app.models import Product, User, Review
+from app.models import Product, User, UserRole, Review
 from app.schemas import CreateUser
 from app.exceptions.auth import (
+    AdminDoesNotExistsException,
     CustomerDoesNotExistsException,
     UserAlreadyExistsException,
     SupplierDoesNotExistsException,
@@ -38,22 +39,46 @@ async def get_current_user(
     return await AuthHelper.get_current_user(session, user_jwt)
 
 
+# async def get_current_supplier(
+#     session: session_dependency, user_jwt: Annotated[str, Depends(oauth2_scheme)]
+# ) -> User:
+#     return await AuthHelper.get_current_supplier(session, user_jwt)
+
+
 async def get_current_supplier(
-    session: session_dependency, user_jwt: Annotated[str, Depends(oauth2_scheme)]
+    user: Annotated[User, Depends(get_current_user)],
 ) -> User:
-    return await AuthHelper.get_current_supplier(session, user_jwt)
+    if user.user_role == UserRole.CUSTOMER:
+        raise SupplierDoesNotExistsException(status_code=status.HTTP_403_FORBIDDEN)
+    return user
+
+
+# async def get_current_customer(
+#     session: session_dependency, user_jwt: Annotated[str, Depends(oauth2_scheme)]
+# ) -> User:
+#     return await AuthHelper.get_current_customer(session, user_jwt)
 
 
 async def get_current_customer(
-    session: session_dependency, user_jwt: Annotated[str, Depends(oauth2_scheme)]
+    user: Annotated[User, Depends(get_current_user)],
 ) -> User:
-    return await AuthHelper.get_current_customer(session, user_jwt)
+    if user.user_role == UserRole.SUPPLIER:
+        raise CustomerDoesNotExistsException(status_code=status.HTTP_403_FORBIDDEN)
+    return user
+
+
+# async def get_current_admin(
+#     session: session_dependency, user_jwt: Annotated[str, Depends(oauth2_scheme)]
+# ) -> User:
+#     return await AuthHelper.get_current_admin(session, user_jwt)
 
 
 async def get_current_admin(
-    session: session_dependency, user_jwt: Annotated[str, Depends(oauth2_scheme)]
+    user: Annotated[User, Depends(get_current_user)],
 ) -> User:
-    return await AuthHelper.get_current_admin(session, user_jwt)
+    if user.user_role != UserRole.ADMIN:
+        raise AdminDoesNotExistsException(status_code=status.HTTP_403_FORBIDDEN)
+    return user
 
 
 async def get_owned_product(

@@ -6,6 +6,7 @@ from fastapi import APIRouter, Depends, status
 
 from app.crud import ReviewCrudManager
 from app.dependencies import (
+    anti_spam_by_user_id,
     check_product_exists,
     get_current_customer,
     get_owned_review,
@@ -21,7 +22,7 @@ router = APIRouter(prefix="/reviews", tags=["Reviews"])
     "/",
     status_code=status.HTTP_201_CREATED,
     response_model=Review,
-    dependencies=[Depends(get_current_customer)],
+    dependencies=[Depends(get_current_customer), Depends(anti_spam_by_user_id)],
 )
 async def create_review(
     session: session_dependency,

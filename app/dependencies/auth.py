@@ -92,7 +92,7 @@ async def get_owned_product(
 
 async def get_owned_review(
     user: Annotated[User, Depends(get_current_customer)],
-    review: Annotated[Review, check_review_exists],
+    review: Annotated[Review, Depends(check_review_exists)],
 ) -> Review:
     if review.user_id != user.id:
         raise CustomerDoesNotExistsException(status_code=status.HTTP_403_FORBIDDEN)

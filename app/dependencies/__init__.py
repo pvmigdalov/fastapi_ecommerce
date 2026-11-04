@@ -14,8 +14,11 @@ from .existence_checks import (
     check_user_exists,
     check_review_exists,
 )
+from .rate_limiting import anti_spam_by_user_id
+
 
 __all__ = (
+    "anti_spam_by_user_id",
     "check_category_exists",
     "check_product_exists",
     "check_user_by_username_or_email",

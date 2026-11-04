@@ -8,6 +8,7 @@ from app.exceptions import auth as auth_exc
 from app.exceptions import categories as categories_exc
 from app.exceptions import products as products_exc
 from app.exceptions import reviews as reviews_exc
+from app.exceptions import rate_limiting as rate_limiting_exc
 
 
 AUTH_EXCEPTIONS = (
@@ -45,6 +46,11 @@ REVIEWS_EXCEPTIONS = (
     reviews_exc.ReviewDoesNotExistsException,
 )
 
+RATE_LIMITING_EXCEPTIONS = (
+    rate_limiting_exc.base.BaseRateLimitingException,
+    rate_limiting_exc.TooManyRequestsException,
+)
+
 
 def make_handler():
     async def handler(request: Request, exc: BaseApplicationException):
@@ -59,6 +65,10 @@ def make_handler():
 
 def register_exception_handlers(app: FastAPI):
     for exc_type in itertools.chain(
-        AUTH_EXCEPTIONS, CATEGORIES_EXCEPTIONS, PRODUCTS_EXCEPTIONS, REVIEWS_EXCEPTIONS
+        AUTH_EXCEPTIONS,
+        CATEGORIES_EXCEPTIONS,
+        PRODUCTS_EXCEPTIONS,
+        REVIEWS_EXCEPTIONS,
+        RATE_LIMITING_EXCEPTIONS,
     ):
         app.add_exception_handler(exc_type, make_handler())

@@ -4,7 +4,7 @@ import uvicorn
 from fastapi import FastAPI
 
 from app.database import async_get_redis_rate_limiter
-from app.exception_heandlers import register_exception_handlers
+from app.exception_handlers import register_exception_handlers
 from app.routers import auth_router, categories_router, products_router, reviews_router
 from app.settings import settings
 

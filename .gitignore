@@ -8,6 +8,7 @@ __pycache__/
 ecommerce.db*
 db.env
 auth.env
+redis.env
 test_select_users.py
 TODO
 TODO.md

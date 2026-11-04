@@ -1,3 +1,11 @@
+.PHONY: all-up
+all-up:
+	docker compose up -d
+
+.PHONY: infra-up
+infra-up:
+	docker compose up -d pg redis redis-gui
+
 .PHONY: app-uv-run
 app-uv-run:
 	uv run python -m app.main	
@@ -6,9 +14,13 @@ app-uv-run:
 pg-up:
 	docker compose up pg -d
 
-.PHONY: all-up
-all-up:
-	docker compose up -d
+.PHONY: redis-up
+redis-up:
+	docker compose up redis -d
+
+.PHONY: redis-gui-up
+redis-gui-up:
+	docker compose up redis-gui -d		
 
 .PHONY: app-rebuild
 app-rebuild:

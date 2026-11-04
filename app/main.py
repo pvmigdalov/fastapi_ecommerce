@@ -1,10 +1,24 @@
+from contextlib import asynccontextmanager
+
 import uvicorn
 from fastapi import FastAPI
 
-from app.routers import auth_router, categories_router, products_router, reviews_router
+from app.database import async_get_redis_rate_limiter
 from app.exception_heandlers import register_exception_handlers
+from app.routers import auth_router, categories_router, products_router, reviews_router
+from app.settings import settings
 
-app = FastAPI()
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    app.state.rate_limiter = await async_get_redis_rate_limiter(
+        settings.redis_settings.redis_rate_limiter_url
+    )
+    yield
+    await app.state.rate_limiter.close()
+
+
+app = FastAPI(lifespan=lifespan)
 
 
 @app.get("/")

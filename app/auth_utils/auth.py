@@ -3,7 +3,6 @@ from typing import Literal
 from uuid import UUID
 
 import jwt
-from fastapi import HTTPException, status
 from pwdlib import PasswordHash
 from pydantic import BaseModel, ValidationError
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -59,9 +58,7 @@ class AuthHelper:
             or not cls.password_util.verify(password, user.hashed_password)
             or not user.is_active
         ):
-            raise IncorrectUsernameOrPasswordException(
-                status_code=status.HTTP_401_UNAUTHORIZED
-            )
+            raise IncorrectUsernameOrPasswordException(status_code=401)
         return user
 
     @classmethod
@@ -73,28 +70,28 @@ class AuthHelper:
         payload = cls.verify_token(user_jwt, type_="access")
         user = await UserCrudManager.select_by_id(session, UUID(payload.user_id))
         if not user or not user.is_active:
-            raise UserDoesNotExistsException(status_code=status.HTTP_401_UNAUTHORIZED)
+            raise UserDoesNotExistsException(status_code=401)
         return user
 
     @classmethod
     async def get_current_supplier(cls, session: AsyncSession, user_jwt: str) -> User:
         user = await cls.get_current_user(session, user_jwt)
         if user.user_role == UserRole.CUSTOMER:
-            raise SupplierDoesNotExistsException(status_code=status.HTTP_403_FORBIDDEN)
+            raise SupplierDoesNotExistsException(status_code=403)
         return user
 
     @classmethod
     async def get_current_customer(cls, session: AsyncSession, user_jwt: str) -> User:
         user = await cls.get_current_user(session, user_jwt)
         if user.user_role == UserRole.SUPPLIER:
-            raise CustomerDoesNotExistsException(status_code=status.HTTP_403_FORBIDDEN)
+            raise CustomerDoesNotExistsException(status_code=403)
         return user
 
     @classmethod
     async def get_current_admin(cls, session: AsyncSession, user_jwt: str) -> User:
         user = await cls.get_current_user(session, user_jwt)
         if user.user_role != UserRole.ADMIN:
-            raise AdminDoesNotExistsException(status_code=status.HTTP_403_FORBIDDEN)
+            raise AdminDoesNotExistsException(status_code=403)
         return user
 
     @classmethod
@@ -106,7 +103,7 @@ class AuthHelper:
         elif type_ == "refresh":
             expires_days = cls.jwt_refresh_expires_days
         else:
-            raise InvalidJWTTypeException()
+            raise InvalidJWTTypeException(status_code=401)
 
         # Validating jwt payload
         now = datetime.now(timezone.utc)
@@ -134,21 +131,11 @@ class AuthHelper:
         try:
             payload = JWTPayload.model_validate(jwt_decoded)
         except ValidationError:
-            raise InvalidJWTPayloadException()
+            raise InvalidJWTPayloadException(status_code=401)
 
         if payload.type != type_:
-            raise InvalidJWTTypeException(type_=type_)
+            raise InvalidJWTTypeException(status_code=401, type_=type_)
         return payload
-
-    @classmethod
-    def get_credentials_exception(
-        cls, *, status_code: int = 401, detail: str = ""
-    ) -> HTTPException:
-        return HTTPException(
-            status_code=status_code,
-            detail=detail,
-            headers={"WWW-Authenticate": "Bearer"},
-        )
 
     @classmethod
     def _decode_token(cls, token: str) -> dict:
@@ -159,12 +146,12 @@ class AuthHelper:
                 algorithms=[cls.jwt_algorithm],
             )
         except jwt.ExpiredSignatureError:
-            raise ExpiredJWTException()
+            raise ExpiredJWTException(status_code=401)
         except jwt.InvalidTokenError:
-            raise InvalidJWTException()
+            raise InvalidJWTException(status_code=401)
         except jwt.PyJWTError:
-            raise BaseJWTException()
+            raise BaseJWTException(status_code=401)
         except Exception:
-            raise BaseAuthException()
+            raise BaseAuthException(status_code=500)
         else:
             return jwt_decoded

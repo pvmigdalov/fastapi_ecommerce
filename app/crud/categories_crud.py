@@ -28,7 +28,7 @@ class CategoryCrudManager(BaseCrudManager[Category]):
     ) -> None:
         if "parent_id" in values:
             await cls.check_cycle_parents(session, obj.id, values["parent_id"])
-        await super().update(session, obj, values)
+        await super().update(session, obj, values, commit)
 
     @classmethod
     async def check_cycle_parents(

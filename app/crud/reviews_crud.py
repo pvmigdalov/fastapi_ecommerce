@@ -28,7 +28,16 @@ class ReviewCrudManager(BaseCrudManager[Review]):
     ) -> Review | None:
         reviews = await cls.select(session, user_id=user_id, product_id=product_id)
         if reviews:
-            reviews[0]
+            return reviews[0]
+
+    @classmethod
+    async def add(cls, session: AsyncSession, obj: Review, commit: bool = True) -> None:
+        user_review = await cls.select_user_review_about_product(
+            session, obj.user_id, obj.product_id
+        )
+        if user_review:
+            raise UserReviewAboutProductAlreadyExistsException(status_code=400)
+        await super().add(session, obj, commit)
 
     @classmethod
     async def update(
@@ -43,4 +52,4 @@ class ReviewCrudManager(BaseCrudManager[Review]):
         )
         if user_review:
             raise UserReviewAboutProductAlreadyExistsException(status_code=400)
-        await super().update(session, obj, values)
+        await super().update(session, obj, values, commit)

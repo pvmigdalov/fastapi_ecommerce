@@ -1,3 +1,4 @@
+from datetime import datetime, timezone
 from enum import Enum
 from typing import Annotated
 
@@ -46,4 +47,7 @@ class User(BaseModel):
     username: str
     email: EmailStr
     user_role: UserRoleWithAdmin
+    created_at: Annotated[
+        datetime, Field(datetime.now(tz=timezone.utc), description="Created at")
+    ]
     model_config = ConfigDict(from_attributes=True)

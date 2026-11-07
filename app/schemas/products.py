@@ -1,3 +1,4 @@
+from datetime import datetime, timezone
 from decimal import Decimal
 from typing import Annotated
 
@@ -56,4 +57,7 @@ class Product(ProductCreate):
     slug: Annotated[str, Field(..., description="Product's slug")]
     rating: Annotated[float, Field(0, description="Product's rating")]
     supplier_id: Annotated[UUID4, Field(..., description="Supplier's uuid v4")]
+    created_at: Annotated[
+        datetime, Field(datetime.now(tz=timezone.utc), description="Created at")
+    ]
     model_config = ConfigDict(from_attributes=True)

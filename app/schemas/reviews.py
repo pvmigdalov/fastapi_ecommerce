@@ -1,3 +1,4 @@
+from datetime import datetime, timezone
 from typing import Annotated
 
 from pydantic import UUID4, BaseModel, ConfigDict, Field
@@ -22,6 +23,9 @@ class Review(ReviewCreate):
 
     id: Annotated[UUID4, Field(..., description="Review's uuid v4")]
     is_active: Annotated[bool, Field(..., description="Activity status")]
+    created_at: Annotated[
+        datetime, Field(datetime.now(tz=timezone.utc), description="Created at")
+    ]
     model_config = ConfigDict(from_attributes=True)
 
 

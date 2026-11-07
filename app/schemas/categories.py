@@ -1,3 +1,4 @@
+from datetime import datetime, timezone
 from typing import Annotated
 
 from pydantic import UUID4, BaseModel, ConfigDict, Field
@@ -25,4 +26,7 @@ class Category(CreateCategory):
     id: Annotated[UUID4, Field(..., description="Category uuid v4")]
     is_active: Annotated[bool, Field(..., description="Activity status")]
     slug: Annotated[str, Field(..., description="Category slug")]
+    created_at: Annotated[
+        datetime, Field(datetime.now(tz=timezone.utc), description="Created at")
+    ]
     model_config = ConfigDict(from_attributes=True)

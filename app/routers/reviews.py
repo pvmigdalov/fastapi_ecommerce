@@ -22,7 +22,7 @@ router = APIRouter(prefix="/reviews", tags=["Reviews"])
     "/",
     status_code=status.HTTP_201_CREATED,
     response_model=Review,
-    dependencies=[Depends(get_current_customer), Depends(anti_spam_by_user_id)],
+    dependencies=[Depends(anti_spam_by_user_id), Depends(get_current_customer)],
 )
 async def create_review(
     session: session_dependency,

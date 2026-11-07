@@ -44,6 +44,7 @@ REVIEWS_EXCEPTIONS = (
     reviews_exc.base.BaseReviewException,
     reviews_exc.ReviewAlreadyExistsException,
     reviews_exc.ReviewDoesNotExistsException,
+    reviews_exc.UserReviewAboutProductAlreadyExistsException,
 )
 
 RATE_LIMITING_EXCEPTIONS = (

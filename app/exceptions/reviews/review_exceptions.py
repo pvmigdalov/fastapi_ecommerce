@@ -19,3 +19,12 @@ class ReviewAlreadyExistsException(BaseReviewException):
     @property
     def message(self) -> str:
         return "This review already exists"
+
+
+@dataclass(kw_only=True)
+class UserReviewAboutProductAlreadyExistsException(BaseReviewException):
+    status_code: int = 400
+
+    @property
+    def message(self) -> str:
+        return "Review by user about this product already exists"
